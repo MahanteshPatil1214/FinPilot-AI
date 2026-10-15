@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { AppShell } from './components/layout/AppShell'
+import { DocumentCenter } from './pages/DocumentCenter'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { ReconciliationWorkspace } from './pages/ReconciliationWorkspace'
 
@@ -18,15 +19,7 @@ function App() {
             />
           }
         />
-        <Route
-          path="documents"
-          element={
-            <PlaceholderPage
-              title="Document center"
-              description="Upload invoice PDFs, inspect stored metadata and source pages, and run deterministic indexing."
-            />
-          }
-        />
+        <Route path="documents" element={<DocumentCenter />} />
         <Route
           path="transactions"
           element={
