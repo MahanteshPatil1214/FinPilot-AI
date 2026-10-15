@@ -7,6 +7,8 @@ import { InvestigationsPage } from './pages/InvestigationsPage'
 import { InvoicesPage } from './pages/InvoicesPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { ReconciliationWorkspace } from './pages/ReconciliationWorkspace'
+import { ReviewsPage } from './pages/ReviewsPage'
+import { ReviewDetailPage } from './pages/ReviewDetailPage'
 import { TransactionsPage } from './pages/TransactionsPage'
 
 function App() {
@@ -29,15 +31,8 @@ function App() {
         <Route path="reconciliation" element={<ReconciliationWorkspace />} />
         <Route path="investigations" element={<InvestigationsPage />} />
         <Route path="investigations/:id" element={<InvestigationDetailPage />} />
-        <Route
-          path="reviews"
-          element={
-            <PlaceholderPage
-              title="Report review"
-              description="Approve, reject or request more information on investigation reports."
-            />
-          }
-        />
+        <Route path="reviews" element={<ReviewsPage />} />
+        <Route path="reviews/:id" element={<ReviewDetailPage />} />
         <Route
           path="audit"
           element={

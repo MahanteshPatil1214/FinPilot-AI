@@ -11,6 +11,7 @@ import type {
   ReconciliationMatch,
   ReconciliationResults,
   ReconciliationRunResponse,
+  ReviewDecisionRequest,
   ReviewHistoryResponse,
 } from '../types/api'
 
@@ -231,5 +232,18 @@ export function getInvestigationReviews(
 ): Promise<ReviewHistoryResponse> {
   return request<ReviewHistoryResponse>(
     `/investigations/${encodeURIComponent(investigationId)}/reviews`,
+  )
+}
+
+// Records a human decision against a specific report version. The backend
+// rejects a stale version (409) or a non-reviewable status (409) rather than
+// overwriting a newer report; the returned investigation reflects the new status.
+export function submitInvestigationReview(
+  investigationId: string,
+  payload: ReviewDecisionRequest,
+): Promise<Investigation> {
+  return request<Investigation>(
+    `/investigations/${encodeURIComponent(investigationId)}/review`,
+    { method: 'POST', body: JSON.stringify(payload) },
   )
 }

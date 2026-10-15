@@ -218,3 +218,11 @@ export interface ReviewHistoryResponse {
   review_status: string | null
   items: ReviewDecisionRecord[]
 }
+
+// Mirrors app/schemas/investigation.py ReviewDecisionRequest. The reviewer is
+// taken from the authenticated context on the backend, never from the client.
+export interface ReviewDecisionRequest {
+  decision: ReviewDecisionValue
+  rationale: string
+  report_version: number
+}

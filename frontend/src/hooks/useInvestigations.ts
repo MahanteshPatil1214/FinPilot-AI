@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import type { ReviewDecisionValue } from '../types/api'
 import {
   getInvestigation,
   getInvestigationReviews,
   listInvestigations,
   runInvestigation,
+  submitInvestigationReview,
 } from '../services/api'
 
 export interface InvestigationsQueryParams {
@@ -49,6 +51,39 @@ export function useRunInvestigation() {
       })
       void queryClient.invalidateQueries({
         queryKey: ['investigations', 'reviews', investigationId],
+      })
+      void queryClient.invalidateQueries({
+        queryKey: ['investigations', 'list'],
+      })
+    },
+  })
+}
+
+export interface SubmitReviewInput {
+  investigationId: string
+  decision: ReviewDecisionValue
+  rationale: string
+  reportVersion: number
+}
+
+export function useSubmitInvestigationReview() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: SubmitReviewInput) =>
+      submitInvestigationReview(input.investigationId, {
+        decision: input.decision,
+        rationale: input.rationale,
+        report_version: input.reportVersion,
+      }),
+    // A decision changes the investigation's status and review history. Refresh
+    // both (and the queue) once it settles — including on a 409 conflict, where
+    // the refetch surfaces the version the backend actually holds.
+    onSettled: (_result, _error, input) => {
+      void queryClient.invalidateQueries({
+        queryKey: ['investigations', 'detail', input.investigationId],
+      })
+      void queryClient.invalidateQueries({
+        queryKey: ['investigations', 'reviews', input.investigationId],
       })
       void queryClient.invalidateQueries({
         queryKey: ['investigations', 'list'],
