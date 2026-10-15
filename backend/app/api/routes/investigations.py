@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.agents import tools
 from app.api.deps import (
+    get_current_organization_id,
     get_current_user_id,
     get_db,
     get_embedding_provider,
@@ -36,11 +37,6 @@ from app.services.llm_client import LLMClient
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-# Single-organization MVP: there is no authentication yet. The organization is
-# fixed for the whole API and every query is scoped to it. This is a documented
-# development limitation, not a security boundary.
-ORGANIZATION_ID = "org_1"
 
 
 def _review_schema(
@@ -94,6 +90,7 @@ def _serialize(
 def create_investigation(
     payload: InvestigationCreateRequest,
     db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
 ):
     if not payload.invoice_id and not payload.reconciliation_match_id:
         raise HTTPException(
@@ -102,20 +99,20 @@ def create_investigation(
         )
 
     if payload.invoice_id:
-        invoice = tools.get_invoice(db, ORGANIZATION_ID, payload.invoice_id)
+        invoice = tools.get_invoice(db, organization_id, payload.invoice_id)
         if invoice is None:
             raise HTTPException(status_code=404, detail="Invoice not found")
 
     if payload.reconciliation_match_id:
         match = tools.get_reconciliation_match(
-            db, ORGANIZATION_ID, payload.reconciliation_match_id
+            db, organization_id, payload.reconciliation_match_id
         )
         if match is None:
             raise HTTPException(status_code=404, detail="Reconciliation match not found")
 
     investigation = service.create_investigation(
         db,
-        organization_id=ORGANIZATION_ID,
+        organization_id=organization_id,
         created_by=payload.created_by,
         invoice_id=payload.invoice_id,
         reconciliation_match_id=payload.reconciliation_match_id,
@@ -129,6 +126,7 @@ def list_investigations(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
 ):
     if status is not None and status not in service.ALL_STATUSES:
         raise HTTPException(
@@ -139,9 +137,11 @@ def list_investigations(
         raise HTTPException(status_code=422, detail="invalid pagination")
 
     items, total = repo.list_investigations(
-        db, ORGANIZATION_ID, status=status, skip=skip, limit=limit
+        db, organization_id, status=status, skip=skip, limit=limit
     )
-    latest = repo.get_latest_reviews(db, ORGANIZATION_ID, [item.id for item in items])
+    latest = repo.get_latest_reviews(
+        db, organization_id, [item.id for item in items]
+    )
     return InvestigationListResponse(
         total=total,
         skip=skip,
@@ -151,11 +151,15 @@ def list_investigations(
 
 
 @router.get("/investigations/{investigation_id}", response_model=InvestigationResponse)
-def get_investigation(investigation_id: str, db: Session = Depends(get_db)):
-    investigation = repo.get_investigation(db, ORGANIZATION_ID, investigation_id)
+def get_investigation(
+    investigation_id: str,
+    db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
+):
+    investigation = repo.get_investigation(db, organization_id, investigation_id)
     if investigation is None:
         raise HTTPException(status_code=404, detail="Investigation not found")
-    review = repo.get_latest_review(db, ORGANIZATION_ID, investigation_id)
+    review = repo.get_latest_review(db, organization_id, investigation_id)
     return _serialize(investigation, review)
 
 
@@ -167,8 +171,9 @@ def run_investigation(
     db: Session = Depends(get_db),
     embedder: EmbeddingProvider = Depends(get_embedding_provider),
     llm: LLMClient = Depends(get_llm_client),
+    organization_id: str = Depends(get_current_organization_id),
 ):
-    investigation = repo.get_investigation(db, ORGANIZATION_ID, investigation_id)
+    investigation = repo.get_investigation(db, organization_id, investigation_id)
     if investigation is None:
         raise HTTPException(status_code=404, detail="Investigation not found")
 
@@ -178,7 +183,7 @@ def run_investigation(
         investigation_id,
         investigation.status,
     )
-    review = repo.get_latest_review(db, ORGANIZATION_ID, investigation_id)
+    review = repo.get_latest_review(db, organization_id, investigation_id)
     return _serialize(investigation, review)
 
 
@@ -190,15 +195,16 @@ def review_investigation(
     payload: ReviewDecisionRequest,
     db: Session = Depends(get_db),
     reviewer_id: str = Depends(get_current_user_id),
+    organization_id: str = Depends(get_current_organization_id),
 ):
-    investigation = repo.get_investigation(db, ORGANIZATION_ID, investigation_id)
+    investigation = repo.get_investigation(db, organization_id, investigation_id)
     if investigation is None:
         raise HTTPException(status_code=404, detail="Investigation not found")
 
     try:
         review_service.submit_review(
             db,
-            organization_id=ORGANIZATION_ID,
+            organization_id=organization_id,
             investigation=investigation,
             decision=payload.decision,
             rationale=payload.rationale,
@@ -218,8 +224,8 @@ def review_investigation(
             detail="Stale review: the investigation changed since it was reviewed",
         )
 
-    investigation = repo.get_investigation(db, ORGANIZATION_ID, investigation_id)
-    review = repo.get_latest_review(db, ORGANIZATION_ID, investigation_id)
+    investigation = repo.get_investigation(db, organization_id, investigation_id)
+    review = repo.get_latest_review(db, organization_id, investigation_id)
     logger.info(
         "Investigation %s reviewed as %s", investigation_id, payload.decision
     )
@@ -231,13 +237,15 @@ def review_investigation(
     response_model=ReviewHistoryResponse,
 )
 def list_investigation_reviews(
-    investigation_id: str, db: Session = Depends(get_db)
+    investigation_id: str,
+    db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
 ):
-    investigation = repo.get_investigation(db, ORGANIZATION_ID, investigation_id)
+    investigation = repo.get_investigation(db, organization_id, investigation_id)
     if investigation is None:
         raise HTTPException(status_code=404, detail="Investigation not found")
 
-    reviews = repo.list_reviews(db, ORGANIZATION_ID, investigation_id)
+    reviews = repo.list_reviews(db, organization_id, investigation_id)
     current_version = int(investigation.report_version or 0)
     items = [_review_schema(review, current_version) for review in reviews]
     current = next((item for item in items if item.is_current), None)

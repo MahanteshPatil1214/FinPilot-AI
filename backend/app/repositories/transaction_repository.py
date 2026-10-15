@@ -58,5 +58,13 @@ def create_transactions(
     return [obj.id for obj in objects]
 
 
-def list_transactions(db: Session, skip: int = 0, limit: int = 100) -> List[BankTransaction]:
-    return db.query(BankTransaction).offset(skip).limit(limit).all()
+def list_transactions(
+    db: Session, organization_id: str, skip: int = 0, limit: int = 100
+) -> List[BankTransaction]:
+    return (
+        db.query(BankTransaction)
+        .filter(BankTransaction.organization_id == organization_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )

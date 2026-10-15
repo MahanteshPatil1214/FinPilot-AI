@@ -19,5 +19,13 @@ def create_invoice(db: Session, **kwargs) -> Invoice:
     return inv
 
 
-def list_invoices(db: Session, skip: int = 0, limit: int = 100) -> List[Invoice]:
-    return db.query(Invoice).offset(skip).limit(limit).all()
+def list_invoices(
+    db: Session, organization_id: str, skip: int = 0, limit: int = 100
+) -> List[Invoice]:
+    return (
+        db.query(Invoice)
+        .filter(Invoice.organization_id == organization_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )

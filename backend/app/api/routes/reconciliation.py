@@ -5,7 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_current_organization_id, get_db
 from app.core.config import settings
 from app.repositories import reconciliation_repository as repo
 from app.schemas.reconciliation import (
@@ -20,15 +20,13 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-ORGANIZATION_ID = "org_1"
-
 
 @router.post("/reconciliation/run", response_model=ReconciliationRunResponse)
 def run_reconciliation(
     payload: Optional[ReconciliationRunRequest] = Body(default=None),
     db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
 ):
-    organization_id = ORGANIZATION_ID
     window = settings.RECONCILIATION_DATE_WINDOW_DAYS
     if payload is not None and payload.date_window_days is not None:
         if payload.date_window_days < 0:
@@ -71,6 +69,7 @@ def get_reconciliation_results(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
 ):
     if status is not None and status not in service.ALL_STATUSES:
         raise HTTPException(
@@ -80,7 +79,6 @@ def get_reconciliation_results(
     if skip < 0 or limit < 1:
         raise HTTPException(status_code=422, detail="invalid pagination")
 
-    organization_id = ORGANIZATION_ID
     items, total = repo.list_matches(
         db, organization_id, status=status, skip=skip, limit=limit
     )
@@ -97,8 +95,12 @@ def get_reconciliation_results(
 
 
 @router.get("/reconciliation/results/{match_id}", response_model=MatchResponse)
-def get_reconciliation_result(match_id: str, db: Session = Depends(get_db)):
-    match = repo.get_match(db, ORGANIZATION_ID, match_id)
+def get_reconciliation_result(
+    match_id: str,
+    db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
+):
+    match = repo.get_match(db, organization_id, match_id)
     if match is None:
         raise HTTPException(status_code=404, detail="Match not found")
     return MatchResponse.model_validate(match)

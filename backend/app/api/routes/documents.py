@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
+from app.api.deps import get_current_organization_id
 from app.core.config import settings
 from app.db.session import get_db
 from app.repositories.document_repository import (
@@ -23,8 +24,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-ORGANIZATION_ID = "org_1"
-
 _STATUS_BY_CODE = {
     "empty": 422,
     "bad_signature": 400,
@@ -39,6 +38,7 @@ _STATUS_BY_CODE = {
 async def upload_document(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
 ):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No filename provided")
@@ -84,7 +84,7 @@ async def upload_document(
             db,
             document={
                 "id": document_id,
-                "organization_id": ORGANIZATION_ID,
+                "organization_id": organization_id,
                 "original_filename": safe_filename,
                 "content_type": file.content_type or "application/pdf",
                 "document_type": "invoice",
@@ -114,7 +114,7 @@ async def upload_document(
         fields = extract_invoice_fields(combined_text)
         inv = create_invoice(
             db,
-            organization_id=ORGANIZATION_ID,
+            organization_id=organization_id,
             invoice_number=fields.get("invoice_number"),
             invoice_date=fields.get("invoice_date"),
             due_date=fields.get("due_date"),
@@ -151,8 +151,12 @@ async def upload_document(
 
 
 @router.get("/documents/{document_id}", response_model=DocumentDetailResponse)
-def get_document_detail(document_id: str, db: Session = Depends(get_db)):
-    doc = get_document(db, document_id)
+def get_document_detail(
+    document_id: str,
+    db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
+):
+    doc = get_document(db, organization_id, document_id)
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found")
     pages = get_document_pages(db, document_id)

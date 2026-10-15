@@ -51,8 +51,17 @@ def create_document_with_pages(
     return doc
 
 
-def get_document(db: Session, doc_id: str) -> Optional[Document]:
-    return db.query(Document).filter(Document.id == doc_id).first()
+def get_document(
+    db: Session, organization_id: str, doc_id: str
+) -> Optional[Document]:
+    return (
+        db.query(Document)
+        .filter(
+            Document.id == doc_id,
+            Document.organization_id == organization_id,
+        )
+        .first()
+    )
 
 
 def get_document_pages(db: Session, doc_id: str) -> List[DocumentPage]:

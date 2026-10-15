@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
+from app.api.deps import get_current_organization_id
 from app.db.session import get_db
 from app.repositories.transaction_repository import (
     create_transactions,
@@ -18,13 +19,13 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
-ORGANIZATION_ID = "org_1"
 
 
 @router.post("/transactions/import")
 async def import_transactions(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
 ):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No filename provided")
@@ -55,7 +56,7 @@ async def import_transactions(
 
     batch_id = str(uuid.uuid4())
     existing = find_existing_references(
-        db, ORGANIZATION_ID, [r["transaction_reference"] for r in rows]
+        db, organization_id, [r["transaction_reference"] for r in rows]
     )
 
     seen: set = set()
@@ -73,7 +74,7 @@ async def import_transactions(
         transaction_ids = create_transactions(
             db,
             to_insert,
-            organization_id=ORGANIZATION_ID,
+            organization_id=organization_id,
             import_batch_id=batch_id,
         )
     except Exception as e:
@@ -99,5 +100,10 @@ async def import_transactions(
 
 
 @router.get("/transactions", response_model=List[TransactionResponse])
-def get_transactions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return list_transactions(db, skip=skip, limit=limit)
+def get_transactions(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
+):
+    return list_transactions(db, organization_id, skip=skip, limit=limit)

@@ -3,7 +3,12 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db, get_embedding_provider, get_llm_client
+from app.api.deps import (
+    get_current_organization_id,
+    get_db,
+    get_embedding_provider,
+    get_llm_client,
+)
 from app.repositories import document_repository
 from app.schemas.knowledge import (
     AskRequest,
@@ -20,17 +25,16 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-ORGANIZATION_ID = "org_1"
-
 
 @router.post("/knowledge/index/{document_id}", response_model=IndexResponse)
 def index_document(
     document_id: str,
     db: Session = Depends(get_db),
     embedder: EmbeddingProvider = Depends(get_embedding_provider),
+    organization_id: str = Depends(get_current_organization_id),
 ):
-    document = document_repository.get_document(db, document_id)
-    if document is None or document.organization_id != ORGANIZATION_ID:
+    document = document_repository.get_document(db, organization_id, document_id)
+    if document is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
     try:
@@ -48,12 +52,13 @@ def search_knowledge(
     payload: SearchRequest,
     db: Session = Depends(get_db),
     embedder: EmbeddingProvider = Depends(get_embedding_provider),
+    organization_id: str = Depends(get_current_organization_id),
 ):
     filters = payload.filters
     results = retrieval_service.retrieve(
         db,
         payload.query,
-        ORGANIZATION_ID,
+        organization_id,
         embedder,
         top_k=payload.top_k,
         document_id=filters.document_id if filters else None,
@@ -68,13 +73,14 @@ def ask_knowledge(
     db: Session = Depends(get_db),
     embedder: EmbeddingProvider = Depends(get_embedding_provider),
     llm: LLMClient = Depends(get_llm_client),
+    organization_id: str = Depends(get_current_organization_id),
 ):
     filters = payload.filters
     try:
         result = rag_service.answer_question(
             db,
             payload.query,
-            ORGANIZATION_ID,
+            organization_id,
             embedder,
             llm,
             top_k=payload.top_k,
