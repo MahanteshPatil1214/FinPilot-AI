@@ -103,19 +103,38 @@ export function getDocumentStatus(documentId: string): Promise<DocumentStatus> {
   )
 }
 
-interface ListDocumentsParams {
+interface ListRecordsParams {
   skip?: number
   limit?: number
 }
 
-export function listDocuments(
-  params: ListDocumentsParams = {},
-): Promise<DocumentListResponse> {
+function pageQuery(params: ListRecordsParams): string {
   const query = new URLSearchParams()
   if (params.skip !== undefined) query.set('skip', String(params.skip))
   if (params.limit !== undefined) query.set('limit', String(params.limit))
-  const suffix = query.toString() ? `?${query.toString()}` : ''
-  return request<DocumentListResponse>(`/documents${suffix}`)
+  const suffix = query.toString()
+  return suffix ? `?${suffix}` : ''
+}
+
+export function listDocuments(
+  params: ListRecordsParams = {},
+): Promise<DocumentListResponse> {
+  return request<DocumentListResponse>(`/documents${pageQuery(params)}`)
+}
+
+// The invoice and transaction list endpoints return a plain array of records
+// (full objects) with `skip`/`limit` only; there is no total count or filter
+// parameter, so pagination is driven by probing one row past the page size.
+export function listInvoices(
+  params: ListRecordsParams = {},
+): Promise<Invoice[]> {
+  return request<Invoice[]>(`/invoices${pageQuery(params)}`)
+}
+
+export function listTransactions(
+  params: ListRecordsParams = {},
+): Promise<BankTransaction[]> {
+  return request<BankTransaction[]>(`/transactions${pageQuery(params)}`)
 }
 
 export function getDocument(documentId: string): Promise<DocumentDetail> {

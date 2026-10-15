@@ -2,8 +2,10 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { AppShell } from './components/layout/AppShell'
 import { DocumentCenter } from './pages/DocumentCenter'
+import { InvoicesPage } from './pages/InvoicesPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { ReconciliationWorkspace } from './pages/ReconciliationWorkspace'
+import { TransactionsPage } from './pages/TransactionsPage'
 
 function App() {
   return (
@@ -20,24 +22,8 @@ function App() {
           }
         />
         <Route path="documents" element={<DocumentCenter />} />
-        <Route
-          path="transactions"
-          element={
-            <PlaceholderPage
-              title="Transactions"
-              description="Imported bank transactions with search and filters."
-            />
-          }
-        />
-        <Route
-          path="invoices"
-          element={
-            <PlaceholderPage
-              title="Invoices"
-              description="Extracted invoice fields with links to their source documents."
-            />
-          }
-        />
+        <Route path="transactions" element={<TransactionsPage />} />
+        <Route path="invoices" element={<InvoicesPage />} />
         <Route path="reconciliation" element={<ReconciliationWorkspace />} />
         <Route
           path="investigations"
