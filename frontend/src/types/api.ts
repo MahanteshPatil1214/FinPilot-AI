@@ -226,3 +226,36 @@ export interface ReviewDecisionRequest {
   rationale: string
   report_version: number
 }
+
+// --- Dashboard -------------------------------------------------------------
+// Mirrors app/schemas/dashboard.py. Every figure is an aggregate over persisted
+// rows; status breakdowns always contain the full set of known keys (zero when
+// empty), so nothing is inferred client-side.
+
+export interface StatusCounts {
+  total: number
+  counts: Record<string, number>
+}
+
+export interface DashboardSummary {
+  organization_id: string
+  generated_at: string
+  invoices_imported: number
+  transactions_imported: number
+  documents_total: number
+  documents_indexed: number
+  documents_pending_indexing: number
+  reconciliation: StatusCounts
+  investigations: StatusCounts
+  reviews: StatusCounts
+  investigations_awaiting_review: number
+}
+
+// --- Service health --------------------------------------------------------
+// Mirrors the plain dict returned by app/api/routes/health.py. It reports only
+// liveness and the service name; no configuration or secret is included.
+
+export interface HealthStatus {
+  status: string
+  service: string
+}

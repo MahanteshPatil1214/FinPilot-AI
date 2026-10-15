@@ -1,9 +1,11 @@
 import type {
   BankTransaction,
+  DashboardSummary,
   DocumentDetail,
   DocumentListResponse,
   DocumentStatus,
   DocumentUploadResponse,
+  HealthStatus,
   Investigation,
   InvestigationListResponse,
   Invoice,
@@ -58,6 +60,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     return undefined as T
   }
   return (await response.json()) as T
+}
+
+export function getDashboardSummary(): Promise<DashboardSummary> {
+  return request<DashboardSummary>('/dashboard/summary')
+}
+
+// Liveness probe. Returns only a status and service name; no configuration.
+export function getHealth(): Promise<HealthStatus> {
+  return request<HealthStatus>('/health')
 }
 
 interface ReconciliationResultsParams {

@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { AppShell } from './components/layout/AppShell'
+import { DashboardPage } from './pages/DashboardPage'
 import { DocumentCenter } from './pages/DocumentCenter'
 import { InvestigationDetailPage } from './pages/InvestigationDetailPage'
 import { InvestigationsPage } from './pages/InvestigationsPage'
@@ -9,6 +10,7 @@ import { PlaceholderPage } from './pages/PlaceholderPage'
 import { ReconciliationWorkspace } from './pages/ReconciliationWorkspace'
 import { ReviewsPage } from './pages/ReviewsPage'
 import { ReviewDetailPage } from './pages/ReviewDetailPage'
+import { SettingsPage } from './pages/SettingsPage'
 import { TransactionsPage } from './pages/TransactionsPage'
 
 function App() {
@@ -16,15 +18,7 @@ function App() {
     <Routes>
       <Route element={<AppShell />}>
         <Route index element={<Navigate to="/reconciliation" replace />} />
-        <Route
-          path="dashboard"
-          element={
-            <PlaceholderPage
-              title="Dashboard"
-              description="Reconciliation and investigation metrics."
-            />
-          }
-        />
+        <Route path="dashboard" element={<DashboardPage />} />
         <Route path="documents" element={<DocumentCenter />} />
         <Route path="transactions" element={<TransactionsPage />} />
         <Route path="invoices" element={<InvoicesPage />} />
@@ -42,15 +36,7 @@ function App() {
             />
           }
         />
-        <Route
-          path="settings"
-          element={
-            <PlaceholderPage
-              title="Settings"
-              description="Safe configuration. API keys are never displayed."
-            />
-          }
-        />
+        <Route path="settings" element={<SettingsPage />} />
         <Route
           path="*"
           element={
