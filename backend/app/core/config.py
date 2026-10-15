@@ -24,6 +24,26 @@ class Settings(BaseSettings):
     # transaction date still counts as an in-window match.
     RECONCILIATION_DATE_WINDOW_DAYS: int = 30
 
+    # --- Retrieval-Augmented Generation (evidence search over documents) ---
+    # Local embedding model; vectors must match the pgvector column width.
+    EMBEDDING_MODEL_NAME: str = "sentence-transformers/all-MiniLM-L6-v2"
+    EMBEDDING_DIM: int = 384
+    EMBEDDING_BATCH_SIZE: int = 32
+
+    # Chunking controls (character based).
+    RAG_CHUNK_SIZE: int = 800
+    RAG_CHUNK_OVERLAP: int = 100
+
+    # Retrieval controls.
+    RAG_TOP_K: int = 5
+    # Minimum cosine similarity for a chunk to count as usable evidence.
+    # Below this the system must answer "insufficient evidence" instead of
+    # guessing.
+    RAG_MIN_SCORE: float = 0.35
+
+    # Answer-generation model (retrieval works without it).
+    GROQ_MODEL_NAME: str = "llama-3.1-8b-instant"
+
     class Config:
         env_file = ".env"
 

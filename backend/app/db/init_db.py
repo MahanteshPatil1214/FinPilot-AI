@@ -10,6 +10,7 @@ from app.models import (  # noqa
     Invoice,
     BankTransaction,
     ReconciliationMatch,
+    DocumentChunk,
 )
 
 logger = logging.getLogger(__name__)
@@ -46,6 +47,15 @@ def _apply_additive_columns() -> None:
                 logger.info("Added missing column %s.%s", table, name)
 
 
+def _ensure_pg_extensions() -> None:
+    """Create the pgvector extension before any Vector column is created."""
+    if engine.dialect.name != "postgresql":
+        return
+    with engine.begin() as conn:
+        conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+
+
 def init_db():
+    _ensure_pg_extensions()
     Base.metadata.create_all(bind=engine)
     _apply_additive_columns()
