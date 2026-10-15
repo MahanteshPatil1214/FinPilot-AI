@@ -5,15 +5,30 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.agents import tools
-from app.api.deps import get_db, get_embedding_provider, get_llm_client
+from app.api.deps import (
+    get_current_user_id,
+    get_db,
+    get_embedding_provider,
+    get_llm_client,
+)
+from app.core.exceptions import (
+    ReviewConflictError,
+    ReviewNotEligibleError,
+    ReviewNotFoundError,
+)
 from app.models.investigation import Investigation
+from app.models.investigation_review import InvestigationReview
 from app.repositories import investigation_repository as repo
 from app.schemas.investigation import (
     InvestigationCreateRequest,
     InvestigationListResponse,
     InvestigationReportSchema,
     InvestigationResponse,
+    ReviewDecisionRequest,
+    ReviewDecisionSchema,
+    ReviewHistoryResponse,
 )
+from app.services import investigation_review_service as review_service
 from app.services import investigation_service as service
 from app.services.embedding_service import EmbeddingProvider
 from app.services.llm_client import LLMClient
@@ -22,11 +37,41 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+# Single-organization MVP: there is no authentication yet. The organization is
+# fixed for the whole API and every query is scoped to it. This is a documented
+# development limitation, not a security boundary.
 ORGANIZATION_ID = "org_1"
 
 
-def _serialize(investigation: Investigation) -> InvestigationResponse:
+def _review_schema(
+    review: InvestigationReview, current_version: int
+) -> ReviewDecisionSchema:
+    return ReviewDecisionSchema(
+        id=review.id,
+        investigation_id=review.investigation_id,
+        decision=review.decision,
+        rationale=review.rationale,
+        reviewer_id=review.reviewer_id,
+        previous_status=review.previous_status,
+        resulting_status=review.resulting_status,
+        report_version=review.report_version,
+        is_current=review.report_version == current_version,
+        created_at=review.created_at,
+    )
+
+
+def _serialize(
+    investigation: Investigation, review: Optional[InvestigationReview] = None
+) -> InvestigationResponse:
     report = service.parse_report(investigation)
+    current_version = int(investigation.report_version or 0)
+    latest = _review_schema(review, current_version) if review is not None else None
+    # A review only counts as the investigation's current review status when it
+    # still applies to the current report. After a rerun the prior review becomes
+    # historical (is_current=False) and the review status is cleared.
+    current_decision = (
+        latest.decision if latest is not None and latest.is_current else None
+    )
     return InvestigationResponse(
         id=investigation.id,
         organization_id=investigation.organization_id,
@@ -36,7 +81,10 @@ def _serialize(investigation: Investigation) -> InvestigationResponse:
         status=investigation.status,
         workflow_state=investigation.workflow_state,
         model_name=investigation.model_name,
+        report_version=current_version,
         report=InvestigationReportSchema(**report) if report else None,
+        review_status=current_decision,
+        latest_review=latest,
         created_at=investigation.created_at,
         updated_at=investigation.updated_at,
     )
@@ -93,11 +141,12 @@ def list_investigations(
     items, total = repo.list_investigations(
         db, ORGANIZATION_ID, status=status, skip=skip, limit=limit
     )
+    latest = repo.get_latest_reviews(db, ORGANIZATION_ID, [item.id for item in items])
     return InvestigationListResponse(
         total=total,
         skip=skip,
         limit=limit,
-        items=[_serialize(item) for item in items],
+        items=[_serialize(item, latest.get(item.id)) for item in items],
     )
 
 
@@ -106,7 +155,8 @@ def get_investigation(investigation_id: str, db: Session = Depends(get_db)):
     investigation = repo.get_investigation(db, ORGANIZATION_ID, investigation_id)
     if investigation is None:
         raise HTTPException(status_code=404, detail="Investigation not found")
-    return _serialize(investigation)
+    review = repo.get_latest_review(db, ORGANIZATION_ID, investigation_id)
+    return _serialize(investigation, review)
 
 
 @router.post(
@@ -128,17 +178,72 @@ def run_investigation(
         investigation_id,
         investigation.status,
     )
-    return _serialize(investigation)
+    review = repo.get_latest_review(db, ORGANIZATION_ID, investigation_id)
+    return _serialize(investigation, review)
 
 
 @router.post(
     "/investigations/{investigation_id}/review", response_model=InvestigationResponse
 )
-def review_investigation(investigation_id: str, db: Session = Depends(get_db)):
+def review_investigation(
+    investigation_id: str,
+    payload: ReviewDecisionRequest,
+    db: Session = Depends(get_db),
+    reviewer_id: str = Depends(get_current_user_id),
+):
     investigation = repo.get_investigation(db, ORGANIZATION_ID, investigation_id)
     if investigation is None:
         raise HTTPException(status_code=404, detail="Investigation not found")
-    raise HTTPException(
-        status_code=501,
-        detail="Report review is implemented in Milestone 6",
+
+    try:
+        review_service.submit_review(
+            db,
+            organization_id=ORGANIZATION_ID,
+            investigation=investigation,
+            decision=payload.decision,
+            rationale=payload.rationale,
+            reviewer_id=reviewer_id,
+            expected_report_version=payload.report_version,
+        )
+    except ReviewNotFoundError:
+        raise HTTPException(status_code=404, detail="Investigation not found")
+    except ReviewNotEligibleError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Investigation is not eligible for review (status '{exc.status}')",
+        )
+    except ReviewConflictError:
+        raise HTTPException(
+            status_code=409,
+            detail="Stale review: the investigation changed since it was reviewed",
+        )
+
+    investigation = repo.get_investigation(db, ORGANIZATION_ID, investigation_id)
+    review = repo.get_latest_review(db, ORGANIZATION_ID, investigation_id)
+    logger.info(
+        "Investigation %s reviewed as %s", investigation_id, payload.decision
+    )
+    return _serialize(investigation, review)
+
+
+@router.get(
+    "/investigations/{investigation_id}/reviews",
+    response_model=ReviewHistoryResponse,
+)
+def list_investigation_reviews(
+    investigation_id: str, db: Session = Depends(get_db)
+):
+    investigation = repo.get_investigation(db, ORGANIZATION_ID, investigation_id)
+    if investigation is None:
+        raise HTTPException(status_code=404, detail="Investigation not found")
+
+    reviews = repo.list_reviews(db, ORGANIZATION_ID, investigation_id)
+    current_version = int(investigation.report_version or 0)
+    items = [_review_schema(review, current_version) for review in reviews]
+    current = next((item for item in items if item.is_current), None)
+    return ReviewHistoryResponse(
+        investigation_id=investigation_id,
+        total=len(items),
+        review_status=current.decision if current else None,
+        items=items,
     )

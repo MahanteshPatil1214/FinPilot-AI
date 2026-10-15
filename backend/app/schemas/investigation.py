@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class InvestigationCreateRequest(BaseModel):
@@ -39,6 +39,54 @@ class InvestigationReportSchema(BaseModel):
     citations: List[Citation] = Field(default_factory=list)
 
 
+ReviewDecisionValue = Literal["approved", "rejected", "needs_more_information"]
+
+
+class ReviewDecisionRequest(BaseModel):
+    """Human review submission.
+
+    No reviewer identity is accepted from the client: identity is derived
+    server-side and never trusted from the request body. Unknown fields (such as
+    a client-supplied ``reviewer_id``) are rejected outright.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    decision: ReviewDecisionValue
+    rationale: str = Field(min_length=1, max_length=2000)
+    report_version: int = Field(ge=0)
+
+    @field_validator("rationale")
+    @classmethod
+    def _rationale_not_blank(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("rationale must not be empty or whitespace only")
+        return cleaned
+
+
+class ReviewDecisionSchema(BaseModel):
+    id: str
+    investigation_id: str
+    decision: str
+    rationale: str
+    reviewer_id: Optional[str] = None
+    previous_status: str
+    resulting_status: str
+    report_version: int
+    # True when this review still applies to the investigation's current report
+    # (its report_version matches). False once the report is regenerated.
+    is_current: bool = True
+    created_at: Optional[datetime] = None
+
+
+class ReviewHistoryResponse(BaseModel):
+    investigation_id: str
+    total: int
+    review_status: Optional[str] = None
+    items: List[ReviewDecisionSchema] = Field(default_factory=list)
+
+
 class InvestigationResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
@@ -50,7 +98,10 @@ class InvestigationResponse(BaseModel):
     status: str
     workflow_state: Optional[str] = None
     model_name: Optional[str] = None
+    report_version: int = 0
     report: Optional[InvestigationReportSchema] = None
+    review_status: Optional[str] = None
+    latest_review: Optional[ReviewDecisionSchema] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 

@@ -26,6 +26,10 @@ STATUS_RUNNING = "running"
 STATUS_COMPLETED = "completed"
 STATUS_NEEDS_REVIEW = "needs_review"
 STATUS_FAILED = "failed"
+# Terminal review outcomes.
+STATUS_APPROVED = "approved"
+STATUS_REJECTED = "rejected"
+STATUS_NEEDS_MORE_INFORMATION = "needs_more_information"
 
 ALL_STATUSES = (
     STATUS_PENDING,
@@ -33,6 +37,9 @@ ALL_STATUSES = (
     STATUS_COMPLETED,
     STATUS_NEEDS_REVIEW,
     STATUS_FAILED,
+    STATUS_APPROVED,
+    STATUS_REJECTED,
+    STATUS_NEEDS_MORE_INFORMATION,
 )
 
 DETERMINISTIC_MODEL_LABEL = "deterministic"
@@ -104,6 +111,12 @@ def run_investigation(
         else DETERMINISTIC_MODEL_LABEL
     )
 
+    # A (re)generated report advances the version so any review the reviewer was
+    # looking at becomes detectably stale.
+    report_version = int(investigation.report_version or 0)
+    if report is not None:
+        report_version += 1
+
     return repo.update_investigation(
         db,
         investigation,
@@ -111,4 +124,5 @@ def run_investigation(
         workflow_state=final_state.get("workflow_state"),
         report_json=json.dumps(report) if report is not None else None,
         model_name=model_name,
+        report_version=report_version,
     )

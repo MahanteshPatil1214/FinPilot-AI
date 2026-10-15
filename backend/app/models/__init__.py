@@ -5,3 +5,5 @@ from .transaction import BankTransaction  # noqa
 from .reconciliation_match import ReconciliationMatch  # noqa
 from .document_chunk import DocumentChunk  # noqa
 from .investigation import Investigation  # noqa
+from .investigation_review import InvestigationReview  # noqa
+from .audit_event import AuditEvent  # noqa

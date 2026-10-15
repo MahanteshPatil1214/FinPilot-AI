@@ -10,10 +10,12 @@ from app.api.deps import get_embedding_provider, get_llm_client
 from app.db.init_db import init_db
 from app.db.session import SessionLocal
 from app.main import app
+from app.models.audit_event import AuditEvent
 from app.models.document import Document
 from app.models.document_chunk import DocumentChunk
 from app.models.document_page import DocumentPage
 from app.models.investigation import Investigation
+from app.models.investigation_review import InvestigationReview
 from app.models.invoice import Invoice
 from app.models.reconciliation_match import ReconciliationMatch
 from app.models.transaction import BankTransaction
@@ -111,6 +113,8 @@ def _clean_tables():
     db = SessionLocal()
     try:
         for model in (
+            AuditEvent,
+            InvestigationReview,
             Investigation,
             DocumentChunk,
             DocumentPage,
@@ -476,11 +480,3 @@ def test_run_does_not_change_reconciliation_results():
         db.close()
 
     assert before == after
-
-
-def test_review_endpoint_is_not_implemented_yet():
-    invoice_id = seed_invoice()
-    override()
-    inv_id = create_investigation(invoice_id)
-    resp = client.post(f"{INV_URL}/{inv_id}/review")
-    assert resp.status_code == 501

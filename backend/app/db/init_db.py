@@ -12,6 +12,8 @@ from app.models import (  # noqa
     ReconciliationMatch,
     DocumentChunk,
     Investigation,
+    InvestigationReview,
+    AuditEvent,
 )
 
 logger = logging.getLogger(__name__)
@@ -25,6 +27,9 @@ _ADDITIVE_COLUMNS = {
         ("storage_path", "VARCHAR(500)"),
         ("file_size", "INTEGER"),
         ("page_count", "INTEGER"),
+    ],
+    "investigations": [
+        ("report_version", "INTEGER NOT NULL DEFAULT 0"),
     ],
 }
 
