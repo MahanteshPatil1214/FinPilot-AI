@@ -34,6 +34,9 @@ dist-ssr/
 *.db
 *.sqlite3
 
+# Private uploaded document storage
+backend/storage/
+
 # Secrets
 .env
 *.key

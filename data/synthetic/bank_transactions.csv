@@ -1,0 +1,3 @@
+transaction_reference,transaction_date,description,amount,currency,counterparty
+TXN-778,2026-10-15,NORTHSTAR OFFICE SUPPLIES,11700.00,INR,Northstar
+TXN-779,2026-10-16,ACME CORP,5000.00,INR,ACME
