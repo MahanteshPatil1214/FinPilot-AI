@@ -4,7 +4,13 @@ from sqlalchemy import inspect, text
 
 from app.db.base import Base
 from app.db.session import engine
-from app.models import Document, DocumentPage, Invoice, BankTransaction  # noqa
+from app.models import (  # noqa
+    Document,
+    DocumentPage,
+    Invoice,
+    BankTransaction,
+    ReconciliationMatch,
+)
 
 logger = logging.getLogger(__name__)
 

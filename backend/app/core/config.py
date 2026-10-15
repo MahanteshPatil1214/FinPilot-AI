@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     # Maximum number of pages accepted from a single PDF.
     MAX_PDF_PAGES: int = 500
 
+    # Days either side of an invoice's date range within which a bank
+    # transaction date still counts as an in-window match.
+    RECONCILIATION_DATE_WINDOW_DAYS: int = 30
+
     class Config:
         env_file = ".env"
 
