@@ -7,6 +7,7 @@ import {
 import {
   getDocumentStatus,
   getInvoice,
+  getReconciliationResult,
   getReconciliationResults,
   getTransaction,
   runReconciliation,
@@ -23,6 +24,14 @@ export function useReconciliationResults(params: ReconciliationQueryParams) {
     queryKey: ['reconciliation', 'results', params],
     queryFn: () => getReconciliationResults(params),
     placeholderData: (previous) => previous,
+  })
+}
+
+export function useReconciliationResult(matchId: string | null) {
+  return useQuery({
+    queryKey: ['reconciliation', 'result', matchId],
+    queryFn: () => getReconciliationResult(matchId as string),
+    enabled: Boolean(matchId),
   })
 }
 

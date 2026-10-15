@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { AppShell } from './components/layout/AppShell'
 import { DocumentCenter } from './pages/DocumentCenter'
+import { InvestigationDetailPage } from './pages/InvestigationDetailPage'
+import { InvestigationsPage } from './pages/InvestigationsPage'
 import { InvoicesPage } from './pages/InvoicesPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { ReconciliationWorkspace } from './pages/ReconciliationWorkspace'
@@ -25,15 +27,8 @@ function App() {
         <Route path="transactions" element={<TransactionsPage />} />
         <Route path="invoices" element={<InvoicesPage />} />
         <Route path="reconciliation" element={<ReconciliationWorkspace />} />
-        <Route
-          path="investigations"
-          element={
-            <PlaceholderPage
-              title="Investigations"
-              description="Agent steps, tool results, retrieved evidence and citations."
-            />
-          }
-        />
+        <Route path="investigations" element={<InvestigationsPage />} />
+        <Route path="investigations/:id" element={<InvestigationDetailPage />} />
         <Route
           path="reviews"
           element={

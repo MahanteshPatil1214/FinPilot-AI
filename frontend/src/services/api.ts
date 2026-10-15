@@ -4,10 +4,14 @@ import type {
   DocumentListResponse,
   DocumentStatus,
   DocumentUploadResponse,
+  Investigation,
+  InvestigationListResponse,
   Invoice,
   KnowledgeIndexResponse,
+  ReconciliationMatch,
   ReconciliationResults,
   ReconciliationRunResponse,
+  ReviewHistoryResponse,
 } from '../types/api'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '/api/v1'
@@ -83,6 +87,14 @@ export function runReconciliation(
     method: 'POST',
     body,
   })
+}
+
+export function getReconciliationResult(
+  matchId: string,
+): Promise<ReconciliationMatch> {
+  return request<ReconciliationMatch>(
+    `/reconciliation/results/${encodeURIComponent(matchId)}`,
+  )
 }
 
 export function getInvoice(invoiceId: string): Promise<Invoice> {
@@ -175,5 +187,49 @@ export function indexDocument(
   return request<KnowledgeIndexResponse>(
     `/knowledge/index/${encodeURIComponent(documentId)}`,
     { method: 'POST' },
+  )
+}
+
+interface InvestigationsParams {
+  status?: string
+  skip?: number
+  limit?: number
+}
+
+export function listInvestigations(
+  params: InvestigationsParams = {},
+): Promise<InvestigationListResponse> {
+  const query = new URLSearchParams()
+  if (params.status) query.set('status', params.status)
+  if (params.skip !== undefined) query.set('skip', String(params.skip))
+  if (params.limit !== undefined) query.set('limit', String(params.limit))
+  const suffix = query.toString() ? `?${query.toString()}` : ''
+  return request<InvestigationListResponse>(`/investigations${suffix}`)
+}
+
+export function getInvestigation(
+  investigationId: string,
+): Promise<Investigation> {
+  return request<Investigation>(
+    `/investigations/${encodeURIComponent(investigationId)}`,
+  )
+}
+
+// Running is synchronous on the backend: the response is the finished
+// investigation (status and report_version already advanced).
+export function runInvestigation(
+  investigationId: string,
+): Promise<Investigation> {
+  return request<Investigation>(
+    `/investigations/${encodeURIComponent(investigationId)}/run`,
+    { method: 'POST' },
+  )
+}
+
+export function getInvestigationReviews(
+  investigationId: string,
+): Promise<ReviewHistoryResponse> {
+  return request<ReviewHistoryResponse>(
+    `/investigations/${encodeURIComponent(investigationId)}/reviews`,
   )
 }

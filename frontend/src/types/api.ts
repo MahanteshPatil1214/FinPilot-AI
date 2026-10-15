@@ -125,3 +125,96 @@ export interface KnowledgeIndexResponse {
   document_id: string
   chunks_indexed: number
 }
+
+// --- Investigations -------------------------------------------------------
+// Mirrors app/schemas/investigation.py. The report is a validated structured
+// object; citations carry identifiers only (there is no stored excerpt), and
+// money remains decimal strings.
+
+export type InvestigationStatus =
+  | 'pending'
+  | 'running'
+  | 'completed'
+  | 'needs_review'
+  | 'failed'
+  | 'approved'
+  | 'rejected'
+  | 'needs_more_information'
+
+export type ReviewDecisionValue =
+  | 'approved'
+  | 'rejected'
+  | 'needs_more_information'
+
+export interface Citation {
+  index: number
+  kind: string
+  document_id: string | null
+  filename: string | null
+  document_type: string | null
+  page_number: number | null
+  chunk_id: string | null
+  score: number | null
+  record_type: string | null
+  record_id: string | null
+}
+
+export interface Finding {
+  statement: string
+  kind: string
+  citations: number[]
+}
+
+export interface InvestigationReport {
+  summary: string
+  findings: Finding[]
+  missing_evidence: string[]
+  recommended_action: string
+  confidence: string
+  requires_human_review: boolean
+  citations: Citation[]
+}
+
+export interface ReviewDecisionRecord {
+  id: string
+  investigation_id: string
+  decision: string
+  rationale: string
+  reviewer_id: string | null
+  previous_status: string
+  resulting_status: string
+  report_version: number
+  is_current: boolean
+  created_at: string | null
+}
+
+export interface Investigation {
+  id: string
+  organization_id: string
+  created_by: string | null
+  invoice_id: string | null
+  reconciliation_match_id: string | null
+  status: InvestigationStatus | string
+  workflow_state: string | null
+  model_name: string | null
+  report_version: number
+  report: InvestigationReport | null
+  review_status: string | null
+  latest_review: ReviewDecisionRecord | null
+  created_at: string | null
+  updated_at: string | null
+}
+
+export interface InvestigationListResponse {
+  total: number
+  skip: number
+  limit: number
+  items: Investigation[]
+}
+
+export interface ReviewHistoryResponse {
+  investigation_id: string
+  total: number
+  review_status: string | null
+  items: ReviewDecisionRecord[]
+}
