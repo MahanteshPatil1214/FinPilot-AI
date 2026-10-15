@@ -11,6 +11,7 @@ from app.models import (  # noqa
     BankTransaction,
     ReconciliationMatch,
     DocumentChunk,
+    Investigation,
 )
 
 logger = logging.getLogger(__name__)
