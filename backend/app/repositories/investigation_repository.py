@@ -4,7 +4,7 @@ import json
 import uuid
 from typing import Dict, List, Optional, Tuple
 
-from sqlalchemy import text
+from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import (
@@ -138,6 +138,28 @@ def get_latest_review(
         )
         .first()
     )
+
+
+def count_by_status(db: Session, organization_id: str) -> Dict[str, int]:
+    """Investigation counts per status for one organization (single query)."""
+    rows = (
+        db.query(Investigation.status, func.count())
+        .filter(Investigation.organization_id == organization_id)
+        .group_by(Investigation.status)
+        .all()
+    )
+    return {status: count for status, count in rows}
+
+
+def count_reviews_by_decision(db: Session, organization_id: str) -> Dict[str, int]:
+    """Review-decision counts for one organization (single query)."""
+    rows = (
+        db.query(InvestigationReview.decision, func.count())
+        .filter(InvestigationReview.organization_id == organization_id)
+        .group_by(InvestigationReview.decision)
+        .all()
+    )
+    return {decision: count for decision, count in rows}
 
 
 def get_latest_reviews(

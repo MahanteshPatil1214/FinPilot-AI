@@ -1,6 +1,7 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.models.transaction import BankTransaction
-from typing import Dict, Iterable, List, Set
+from typing import Dict, Iterable, List, Optional, Set
 import uuid
 
 
@@ -67,4 +68,26 @@ def list_transactions(
         .offset(skip)
         .limit(limit)
         .all()
+    )
+
+
+def get_transaction(
+    db: Session, organization_id: str, transaction_id: str
+) -> Optional[BankTransaction]:
+    return (
+        db.query(BankTransaction)
+        .filter(
+            BankTransaction.id == transaction_id,
+            BankTransaction.organization_id == organization_id,
+        )
+        .first()
+    )
+
+
+def count_transactions(db: Session, organization_id: str) -> int:
+    return (
+        db.query(func.count(BankTransaction.id))
+        .filter(BankTransaction.organization_id == organization_id)
+        .scalar()
+        or 0
     )

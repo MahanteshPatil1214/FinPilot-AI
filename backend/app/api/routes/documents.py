@@ -5,8 +5,10 @@ from app.core.config import settings
 from app.db.session import get_db
 from app.repositories.document_repository import (
     create_document_with_pages,
+    count_chunks_for_document,
     get_document,
     get_document_pages,
+    list_documents,
 )
 from app.repositories.invoice_repository import create_invoice
 from app.services.pdf_service import PDFValidationError, extract_pdf_pages
@@ -16,7 +18,13 @@ from app.services.document_parser import (
     extract_invoice_fields,
     to_decimal_amount,
 )
-from app.schemas.document import DocumentDetailResponse, DocumentPageResponse
+from app.schemas.document import (
+    DocumentDetailResponse,
+    DocumentListResponse,
+    DocumentPageResponse,
+    DocumentResponse,
+    DocumentStatusResponse,
+)
 import logging
 import os
 
@@ -150,6 +158,26 @@ async def upload_document(
     }
 
 
+@router.get("/documents", response_model=DocumentListResponse)
+def list_documents_endpoint(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
+):
+    if skip < 0:
+        raise HTTPException(status_code=422, detail="skip must be >= 0")
+    if limit < 1 or limit > 500:
+        raise HTTPException(status_code=422, detail="limit must be between 1 and 500")
+    items, total = list_documents(db, organization_id, skip=skip, limit=limit)
+    return DocumentListResponse(
+        total=total,
+        skip=skip,
+        limit=limit,
+        items=[DocumentResponse.model_validate(d) for d in items],
+    )
+
+
 @router.get("/documents/{document_id}", response_model=DocumentDetailResponse)
 def get_document_detail(
     document_id: str,
@@ -163,3 +191,26 @@ def get_document_detail(
     detail = DocumentDetailResponse.model_validate(doc)
     detail.pages = [DocumentPageResponse.model_validate(p) for p in pages]
     return detail
+
+
+@router.get(
+    "/documents/{document_id}/status", response_model=DocumentStatusResponse
+)
+def get_document_status(
+    document_id: str,
+    db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
+):
+    doc = get_document(db, organization_id, document_id)
+    if doc is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    chunk_count = count_chunks_for_document(db, organization_id, document_id)
+    indexed = chunk_count > 0
+    return DocumentStatusResponse(
+        document_id=doc.id,
+        processing_status=doc.processing_status or "pending",
+        indexing_status="indexed" if indexed else "not_indexed",
+        indexed=indexed,
+        chunk_count=chunk_count,
+        page_count=doc.page_count,
+    )

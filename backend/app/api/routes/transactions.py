@@ -5,6 +5,7 @@ from app.db.session import get_db
 from app.repositories.transaction_repository import (
     create_transactions,
     find_existing_references,
+    get_transaction,
     list_transactions,
 )
 from app.services.csv_importer import CSVValidationError, parse_transactions_csv
@@ -107,3 +108,15 @@ def get_transactions(
     organization_id: str = Depends(get_current_organization_id),
 ):
     return list_transactions(db, organization_id, skip=skip, limit=limit)
+
+
+@router.get("/transactions/{transaction_id}", response_model=TransactionResponse)
+def get_transaction_detail(
+    transaction_id: str,
+    db: Session = Depends(get_db),
+    organization_id: str = Depends(get_current_organization_id),
+):
+    txn = get_transaction(db, organization_id, transaction_id)
+    if txn is None:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    return txn

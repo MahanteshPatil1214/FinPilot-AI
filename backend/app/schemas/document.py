@@ -36,3 +36,26 @@ class DocumentPageResponse(BaseModel):
 
 class DocumentDetailResponse(DocumentResponse):
     pages: List[DocumentPageResponse] = []
+
+
+class DocumentListResponse(BaseModel):
+    total: int
+    skip: int
+    limit: int
+    items: List[DocumentResponse]
+
+
+class DocumentStatusResponse(BaseModel):
+    """Indexing status for one document.
+
+    ``processing_status`` is the persisted upload/processing state stored on the
+    document. ``indexing_status`` is derived solely from whether the document has
+    any stored chunks; no state is invented for the client.
+    """
+
+    document_id: str
+    processing_status: str
+    indexing_status: str
+    indexed: bool
+    chunk_count: int
+    page_count: Optional[int] = None

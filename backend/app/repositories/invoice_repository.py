@@ -1,6 +1,7 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.models.invoice import Invoice
-from typing import List
+from typing import List, Optional
 import uuid
 
 
@@ -28,4 +29,26 @@ def list_invoices(
         .offset(skip)
         .limit(limit)
         .all()
+    )
+
+
+def get_invoice(
+    db: Session, organization_id: str, invoice_id: str
+) -> Optional[Invoice]:
+    return (
+        db.query(Invoice)
+        .filter(
+            Invoice.id == invoice_id,
+            Invoice.organization_id == organization_id,
+        )
+        .first()
+    )
+
+
+def count_invoices(db: Session, organization_id: str) -> int:
+    return (
+        db.query(func.count(Invoice.id))
+        .filter(Invoice.organization_id == organization_id)
+        .scalar()
+        or 0
     )
