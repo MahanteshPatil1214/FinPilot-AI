@@ -25,3 +25,33 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* Home page motion and texture. Kept dependency-free and motion-safe. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.55s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise {
+    animation: none;
+  }
+}
+
+/* A faint letterhead grid, drawn only where it earns contrast (dark panels). */
+.rule-grid {
+  background-image:
+    linear-gradient(to right, rgba(250, 248, 244, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(250, 248, 244, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}

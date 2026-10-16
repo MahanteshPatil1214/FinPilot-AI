@@ -9,11 +9,15 @@ export interface NavGroup {
   items: NavItem[]
 }
 
-// Mirrors the page list in the project specification (§12).
+// The workspace navigation. Indexes mirror the page list in the project
+// specification (§12); the home page is the workspace entry point at "00".
 export const NAV_GROUPS: NavGroup[] = [
   {
     heading: 'Overview',
-    items: [{ to: '/dashboard', label: 'Dashboard', index: '01' }],
+    items: [
+      { to: '/', label: 'Home', index: '00' },
+      { to: '/dashboard', label: 'Dashboard', index: '01' },
+    ],
   },
   {
     heading: 'Data',

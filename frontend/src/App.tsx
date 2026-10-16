@@ -1,9 +1,10 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { AppShell } from './components/layout/AppShell'
 import { AuditHistoryPage } from './pages/AuditHistoryPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { DocumentCenter } from './pages/DocumentCenter'
+import { HomePage } from './pages/HomePage'
 import { InvestigationDetailPage } from './pages/InvestigationDetailPage'
 import { InvestigationsPage } from './pages/InvestigationsPage'
 import { InvoicesPage } from './pages/InvoicesPage'
@@ -18,7 +19,7 @@ function App() {
   return (
     <Routes>
       <Route element={<AppShell />}>
-        <Route index element={<Navigate to="/reconciliation" replace />} />
+        <Route index element={<HomePage />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="documents" element={<DocumentCenter />} />
         <Route path="transactions" element={<TransactionsPage />} />

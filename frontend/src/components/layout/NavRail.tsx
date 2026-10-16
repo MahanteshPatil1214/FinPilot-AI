@@ -1,11 +1,15 @@
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 
 import { NAV_GROUPS } from '../../lib/nav'
 
 export function NavRail() {
   return (
     <nav className="flex h-full w-60 shrink-0 flex-col border-r border-line bg-surface max-lg:w-14">
-      <div className="border-b border-line px-5 py-5 max-lg:px-2 max-lg:py-4">
+      <Link
+        to="/"
+        aria-label="FinPilot AI home"
+        className="block border-b border-line px-5 py-5 transition-colors hover:bg-paper max-lg:px-2 max-lg:py-4"
+      >
         <p className="font-serif text-lg leading-tight text-ink max-lg:hidden">
           FinPilot AI
         </p>
@@ -18,7 +22,7 @@ export function NavRail() {
         >
           FP
         </p>
-      </div>
+      </Link>
 
       <div className="flex-1 overflow-y-auto px-3 py-4 max-lg:px-1.5">
         {NAV_GROUPS.map((group) => (
@@ -31,6 +35,7 @@ export function NavRail() {
                 <li key={item.to}>
                   <NavLink
                     to={item.to}
+                    end={item.to === '/'}
                     title={item.label}
                     aria-label={item.label}
                     className={({ isActive }) =>
