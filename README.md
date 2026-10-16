@@ -47,6 +47,10 @@ human reviews before anything is acted on.
 5. **Review** the report as a human: approve, reject, or request more
    information, with a rationale. Every decision is written to an append-only
    audit trail.
+6. **Audit** the lifecycle: creating, running and reviewing an investigation each
+   append an event (who did what to which entity and when). The trail is
+   organization-scoped, filterable and readable in the Audit history screen;
+   rows are never edited or deleted.
 
 ## Architecture
 
@@ -97,6 +101,10 @@ financial records**. The AI only reads evidence and drafts a report for a human.
 | Investigations queue | Report review |
 | --- | --- |
 | ![Investigations](docs/screenshots/investigations.png) | ![Review](docs/screenshots/review-detail.png) |
+
+| Audit history |
+| --- |
+| ![Audit history](docs/screenshots/audit.png) |
 
 > Screenshots are generated from the live, seeded app by
 > `frontend/tests/integration/screenshots.spec.ts` (see [Testing](#testing)).
@@ -228,6 +236,7 @@ All routes are under `/api/v1`. Interactive docs at `/docs`.
 | `POST` | `/investigations/{id}/run` | Run the LangGraph workflow. |
 | `POST` | `/investigations/{id}/review` | Record a human decision. |
 | `GET` | `/investigations/{id}/reviews` | Review history. |
+| `GET` | `/audit/events` | Append-only audit trail (filters: `entity_type`, `entity_id`, `action`). |
 | `GET` | `/dashboard/summary` | Aggregated operations summary. |
 
 ## Testing

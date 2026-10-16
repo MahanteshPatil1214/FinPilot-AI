@@ -14,6 +14,7 @@ from app.api.routes import (
     reconciliation,
     knowledge,
     investigations,
+    audit,
     dashboard,
 )
 from app.core.config import settings
@@ -98,4 +99,5 @@ app.include_router(transactions.router, prefix=settings.API_V1_STR)
 app.include_router(reconciliation.router, prefix=settings.API_V1_STR)
 app.include_router(knowledge.router, prefix=settings.API_V1_STR)
 app.include_router(investigations.router, prefix=settings.API_V1_STR)
+app.include_router(audit.router, prefix=settings.API_V1_STR)
 app.include_router(dashboard.router, prefix=settings.API_V1_STR)

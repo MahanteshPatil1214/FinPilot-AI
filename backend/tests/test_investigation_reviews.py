@@ -326,7 +326,7 @@ def test_audit_event_written_on_review():
 
     db = SessionLocal()
     try:
-        events = db.query(AuditEvent).all()
+        events = db.query(AuditEvent).filter_by(action="review_decision").all()
         assert len(events) == 1
         event = events[0]
         assert event.entity_type == "investigation"
@@ -588,9 +588,12 @@ def test_audit_events_accumulate_without_mutating_prior_rows():
 
     db = SessionLocal()
     try:
-        events = db.query(AuditEvent).filter_by(entity_id=inv_id).all()
+        events = (
+            db.query(AuditEvent)
+            .filter_by(entity_id=inv_id, action="review_decision")
+            .all()
+        )
         assert len(events) == 2
-        assert all(e.action == "review_decision" for e in events)
         decisions = sorted(json.loads(e.details_json)["decision"] for e in events)
         assert decisions == ["approved", "rejected"]
     finally:
@@ -632,7 +635,7 @@ def test_review_rolls_back_atomically_on_failure(monkeypatch):
         assert reloaded.status == "completed"
         assert reloaded.report_version == 1
         assert db.query(InvestigationReview).count() == 0
-        assert db.query(AuditEvent).count() == 0
+        assert db.query(AuditEvent).filter_by(action="review_decision").count() == 0
     finally:
         db.close()
 

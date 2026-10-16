@@ -227,6 +227,29 @@ export interface ReviewDecisionRequest {
   report_version: number
 }
 
+// --- Audit trail -----------------------------------------------------------
+// Mirrors app/schemas/audit.py. One row of the append-only trail. `details` is
+// the parsed JSON payload for the action (may be null); nothing is inferred
+// client-side from missing keys.
+
+export interface AuditEvent {
+  id: string
+  organization_id: string
+  actor_id: string | null
+  entity_type: string
+  entity_id: string
+  action: string
+  details: Record<string, unknown> | null
+  created_at: string | null
+}
+
+export interface AuditEventListResponse {
+  total: number
+  skip: number
+  limit: number
+  items: AuditEvent[]
+}
+
 // --- Dashboard -------------------------------------------------------------
 // Mirrors app/schemas/dashboard.py. Every figure is an aggregate over persisted
 // rows; status breakdowns always contain the full set of known keys (zero when

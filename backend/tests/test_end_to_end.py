@@ -360,6 +360,7 @@ def test_full_journey_upload_to_audit():
             .filter(
                 AuditEvent.entity_type == "investigation",
                 AuditEvent.entity_id == investigation_id,
+                AuditEvent.action == "review_decision",
             )
             .all()
         )
@@ -407,7 +408,10 @@ def test_full_journey_upload_to_audit():
     try:
         assert (
             db.query(AuditEvent)
-            .filter(AuditEvent.entity_id == investigation_id)
+            .filter(
+                AuditEvent.entity_id == investigation_id,
+                AuditEvent.action == "review_decision",
+            )
             .count()
             == 2
         )

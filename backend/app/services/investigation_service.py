@@ -16,6 +16,7 @@ from app.agents.graph import build_investigation_graph
 from app.core.config import settings
 from app.models.investigation import Investigation
 from app.repositories import investigation_repository as repo
+from app.repositories import audit_repository
 from app.services.embedding_service import EmbeddingProvider
 from app.services.llm_client import LLMClient
 
@@ -94,9 +95,18 @@ def run_investigation(
         logger.error(
             "Investigation %s failed (error: %s)", investigation.id, type(exc).__name__
         )
+        audit_event = audit_repository.build_event(
+            organization_id=investigation.organization_id,
+            entity_type="investigation",
+            entity_id=investigation.id,
+            action="investigation_run",
+            actor_id=investigation.created_by,
+            details={"status": STATUS_FAILED, "workflow_state": "failed"},
+        )
         return repo.update_investigation(
             db,
             investigation,
+            audit_event=audit_event,
             status=STATUS_FAILED,
             workflow_state="failed",
         )
@@ -117,9 +127,23 @@ def run_investigation(
     if report is not None:
         report_version += 1
 
+    audit_event = audit_repository.build_event(
+        organization_id=investigation.organization_id,
+        entity_type="investigation",
+        entity_id=investigation.id,
+        action="investigation_run",
+        actor_id=investigation.created_by,
+        details={
+            "status": status,
+            "workflow_state": final_state.get("workflow_state"),
+            "report_version": report_version,
+            "model_name": model_name,
+        },
+    )
     return repo.update_investigation(
         db,
         investigation,
+        audit_event=audit_event,
         status=status,
         workflow_state=final_state.get("workflow_state"),
         report_json=json.dumps(report) if report is not None else None,

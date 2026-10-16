@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { AppShell } from './components/layout/AppShell'
+import { AuditHistoryPage } from './pages/AuditHistoryPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { DocumentCenter } from './pages/DocumentCenter'
 import { InvestigationDetailPage } from './pages/InvestigationDetailPage'
@@ -27,15 +28,7 @@ function App() {
         <Route path="investigations/:id" element={<InvestigationDetailPage />} />
         <Route path="reviews" element={<ReviewsPage />} />
         <Route path="reviews/:id" element={<ReviewDetailPage />} />
-        <Route
-          path="audit"
-          element={
-            <PlaceholderPage
-              title="Audit history"
-              description="Append-only record of reviews and status changes."
-            />
-          }
-        />
+        <Route path="audit" element={<AuditHistoryPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route
           path="*"

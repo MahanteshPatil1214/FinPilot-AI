@@ -1,5 +1,6 @@
 import type {
   BankTransaction,
+  AuditEventListResponse,
   DashboardSummary,
   DocumentDetail,
   DocumentListResponse,
@@ -257,4 +258,27 @@ export function submitInvestigationReview(
     `/investigations/${encodeURIComponent(investigationId)}/review`,
     { method: 'POST', body: JSON.stringify(payload) },
   )
+}
+
+interface AuditEventsParams {
+  entity_type?: string
+  entity_id?: string
+  action?: string
+  skip?: number
+  limit?: number
+}
+
+// The audit trail is append-only and organization-scoped; this is the only
+// request the client makes against it (a read).
+export function listAuditEvents(
+  params: AuditEventsParams = {},
+): Promise<AuditEventListResponse> {
+  const query = new URLSearchParams()
+  if (params.entity_type) query.set('entity_type', params.entity_type)
+  if (params.entity_id) query.set('entity_id', params.entity_id)
+  if (params.action) query.set('action', params.action)
+  if (params.skip !== undefined) query.set('skip', String(params.skip))
+  if (params.limit !== undefined) query.set('limit', String(params.limit))
+  const suffix = query.toString() ? `?${query.toString()}` : ''
+  return request<AuditEventListResponse>(`/audit/events${suffix}`)
 }

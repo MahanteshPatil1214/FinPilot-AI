@@ -109,6 +109,38 @@ test('a human decision is recorded against the report version', async ({ page })
   await expect(page.getByRole('status')).toContainText('Decision recorded')
 })
 
+test('the audit trail records the investigation lifecycle and the decision', async ({
+  page,
+}) => {
+  await page.goto('/audit')
+  await expect(
+    page.getByRole('heading', { name: 'Audit history' }),
+  ).toBeVisible()
+
+  const body = page.locator('tbody')
+  await expect(
+    body.getByText('Investigation created', { exact: true }),
+  ).toBeVisible()
+  await expect(
+    body.getByText('Investigation run', { exact: true }),
+  ).toBeVisible()
+  await expect(
+    body.getByText('Review decision', { exact: true }),
+  ).toBeVisible()
+
+  // The human decision just recorded is captured with its outcome.
+  const reviewRow = page
+    .locator('tbody tr')
+    .filter({ hasText: 'Review decision' })
+  await expect(reviewRow).toContainText('Decision: approved')
+
+  // The action filter narrows the trail to the recorded decision.
+  await page
+    .getByRole('button', { name: 'Review decision', exact: true })
+    .click()
+  await expect(page.locator('tbody tr')).toHaveCount(1)
+})
+
 test('the recorded decision is reflected on the dashboard', async ({ page }) => {
   await page.goto('/dashboard')
   await expect(

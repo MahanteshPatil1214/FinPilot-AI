@@ -39,8 +39,25 @@ def create_investigation(
         status="pending",
         workflow_state="pending",
     )
+    # The creation event is written in the same transaction as the investigation
+    # so the trail can never miss a case file that exists.
+    audit = AuditEvent(
+        id=str(uuid.uuid4()),
+        organization_id=organization_id,
+        actor_id=created_by,
+        entity_type="investigation",
+        entity_id=investigation.id,
+        action="investigation_created",
+        details_json=json.dumps(
+            {
+                "invoice_id": invoice_id,
+                "reconciliation_match_id": reconciliation_match_id,
+            }
+        ),
+    )
     try:
         db.add(investigation)
+        db.add(audit)
         db.commit()
     except Exception:
         db.rollback()
@@ -85,17 +102,20 @@ def list_investigations(
 
 
 def update_investigation(
-    db: Session, investigation: Investigation, **fields
+    db: Session, investigation: Investigation, audit_event=None, **fields
 ) -> Investigation:
     """Atomically update the given investigation.
 
     Commits on success and rolls back on failure so a failed run never leaves a
-    partially written report.
+    partially written report. When ``audit_event`` is supplied it is committed in
+    the same transaction, keeping the state change and its audit row consistent.
     """
     try:
         for key, value in fields.items():
             setattr(investigation, key, value)
         db.add(investigation)
+        if audit_event is not None:
+            db.add(audit_event)
         db.commit()
     except Exception:
         db.rollback()

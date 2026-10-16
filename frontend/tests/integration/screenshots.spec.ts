@@ -83,3 +83,11 @@ test('report review', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible()
   await capture(page, 'review-detail')
 })
+
+test('audit history', async ({ page }) => {
+  await page.goto('/audit')
+  await expect(
+    page.getByRole('heading', { name: 'Audit history' }),
+  ).toBeVisible()
+  await capture(page, 'audit')
+})
