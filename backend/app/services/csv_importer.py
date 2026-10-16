@@ -124,7 +124,9 @@ def parse_transactions_csv(content: bytes) -> Dict[str, Any]:
     import pandas as pd
 
     try:
-        df = pd.read_csv(StringIO(text), dtype=str, keep_default_na=False)
+        df = pd.read_csv(
+            StringIO(text), dtype=str, keep_default_na=False, index_col=False
+        )
     except pd.errors.EmptyDataError:
         raise CSVValidationError("CSV file is empty")
     except pd.errors.ParserError as e:

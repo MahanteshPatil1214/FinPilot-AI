@@ -1,0 +1,11 @@
+# Normalize line endings so shell scripts run inside Linux containers.
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+Dockerfile text eol=lf
+docker-compose.yml text eol=lf
+*.mako text eol=lf
+
+# Never rewrite binary assets.
+*.pdf binary
+*.png binary

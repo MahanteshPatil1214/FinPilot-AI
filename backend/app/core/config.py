@@ -1,17 +1,33 @@
-from pydantic_settings import BaseSettings
 from typing import List
+
+from pydantic import field_validator, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# The development default. Used to refuse to boot with it in production.
+_DEV_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/finpilot"
+
+# Identity providers the API can resolve a principal from.
+_VALID_AUTH_PROVIDERS = ("development", "header", "jwt")
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
+
     PROJECT_NAME: str = "FinPilot AI"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
+
+    # deployment | test | production. Anything else falls back to development.
+    ENVIRONMENT: str = "development"
+    LOG_LEVEL: str = "INFO"
 
     ALLOWED_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:3000"]
 
     GROQ_API_KEY: str = ""
 
-    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/finpilot"
+    DATABASE_URL: str = _DEV_DATABASE_URL
 
     # Private directory for uploaded source documents (never served publicly).
     STORAGE_DIR: str = "storage"
@@ -44,8 +60,69 @@ class Settings(BaseSettings):
     # Answer-generation model (retrieval works without it).
     GROQ_MODEL_NAME: str = "llama-3.1-8b-instant"
 
-    class Config:
-        env_file = ".env"
+    # --- Identity / authentication boundary ---
+    # development: fixed local identity (never a security boundary).
+    # header: trust X-User-Id / X-Organization-Id from a trusted proxy. Dev/test only.
+    # jwt: verify a bearer HS256 JWT and map its claims to a principal.
+    AUTH_PROVIDER: str = "development"
+    AUTH_JWT_SECRET: str = ""
+    AUTH_JWT_ALGORITHM: str = "HS256"
+    # The JWT claim carrying the organization id.
+    AUTH_JWT_ORG_CLAIM: str = "org"
+
+    @field_validator("ENVIRONMENT", mode="before")
+    @classmethod
+    def _normalize_environment(cls, value: object) -> str:
+        return str(value or "development").strip().lower()
+
+    @field_validator("AUTH_PROVIDER", mode="before")
+    @classmethod
+    def _normalize_auth_provider(cls, value: object) -> str:
+        provider = str(value or "development").strip().lower()
+        if provider not in _VALID_AUTH_PROVIDERS:
+            raise ValueError(
+                "AUTH_PROVIDER must be one of "
+                f"{', '.join(_VALID_AUTH_PROVIDERS)}"
+            )
+        return provider
+
+    @field_validator("LOG_LEVEL", mode="before")
+    @classmethod
+    def _normalize_log_level(cls, value: object) -> str:
+        return str(value or "INFO").strip().upper()
+
+    @property
+    def is_production(self) -> bool:
+        return self.ENVIRONMENT == "production"
+
+    @model_validator(mode="after")
+    def _validate_production_invariants(self) -> "Settings":
+        """Fail fast on unsafe configuration, but only in production.
+
+        Development and test must stay frictionless; production must not run
+        with a wildcard CORS policy (incompatible with credentialed requests)
+        or the committed development database URL.
+        """
+        if not self.is_production:
+            return self
+
+        if self.ALLOWED_ORIGINS and "*" in self.ALLOWED_ORIGINS:
+            raise ValueError(
+                "ALLOWED_ORIGINS must not contain '*' in production while "
+                "credentials are allowed"
+            )
+        if self.DATABASE_URL == _DEV_DATABASE_URL:
+            raise ValueError(
+                "DATABASE_URL must be configured explicitly in production"
+            )
+        if self.AUTH_PROVIDER == "header":
+            raise ValueError(
+                "AUTH_PROVIDER='header' trusts client-supplied headers and is "
+                "not allowed in production"
+            )
+        if self.AUTH_PROVIDER == "jwt" and not self.AUTH_JWT_SECRET:
+            raise ValueError("AUTH_JWT_SECRET is required when AUTH_PROVIDER='jwt'")
+        return self
 
 
 settings = Settings()

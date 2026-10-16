@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
 from sqlalchemy.orm import Session
 from app.api.deps import get_current_organization_id
 from app.core.config import settings
@@ -45,11 +45,16 @@ _STATUS_BY_CODE = {
 @router.post("/documents/upload")
 async def upload_document(
     file: UploadFile = File(...),
+    document_type: str = Form("invoice"),
     db: Session = Depends(get_db),
     organization_id: str = Depends(get_current_organization_id),
 ):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No filename provided")
+
+    document_type = (document_type or "invoice").strip().lower()
+    if document_type not in {"invoice", "policy", "contract", "bank_statement", "other"}:
+        raise HTTPException(status_code=422, detail="Unsupported document type")
 
     ext = os.path.splitext(file.filename.lower())[1]
     if ext != ".pdf":
@@ -95,7 +100,7 @@ async def upload_document(
                 "organization_id": organization_id,
                 "original_filename": safe_filename,
                 "content_type": file.content_type or "application/pdf",
-                "document_type": "invoice",
+                "document_type": document_type,
                 "file_hash": file_hash,
                 "storage_path": storage_path,
                 "file_size": len(content),
@@ -116,31 +121,33 @@ async def upload_document(
         raise HTTPException(status_code=500, detail="Failed to store document")
 
     # Best-effort structured extraction. Failure here must not discard the
-    # successfully stored document.
+    # successfully stored document. Only an invoice-like document with at least
+    # one recognisable field becomes an Invoice row; policy/contract uploads (or
+    # text with no extractable figures) must not create empty invoice records.
     invoice_id = None
-    try:
-        fields = extract_invoice_fields(combined_text)
-        inv = create_invoice(
-            db,
-            organization_id=organization_id,
-            invoice_number=fields.get("invoice_number"),
-            invoice_date=fields.get("invoice_date"),
-            due_date=fields.get("due_date"),
-            currency=fields.get("currency") or "INR",
-            total_amount=to_decimal_amount(fields.get("total_amount")),
-            source_document_id=doc.id,
-            extraction_status="completed"
-            if fields.get("invoice_number") or fields.get("total_amount")
-            else "pending",
-        )
-        invoice_id = inv.id
-    except Exception as e:
-        # Do not log the exception message; it can contain extracted field values.
-        logger.error(
-            "Invoice field extraction failed for document %s (error: %s)",
-            doc.id,
-            type(e).__name__,
-        )
+    if document_type == "invoice":
+        try:
+            fields = extract_invoice_fields(combined_text)
+            if fields.get("invoice_number") or fields.get("total_amount"):
+                inv = create_invoice(
+                    db,
+                    organization_id=organization_id,
+                    invoice_number=fields.get("invoice_number"),
+                    invoice_date=fields.get("invoice_date"),
+                    due_date=fields.get("due_date"),
+                    currency=fields.get("currency") or "INR",
+                    total_amount=to_decimal_amount(fields.get("total_amount")),
+                    source_document_id=doc.id,
+                    extraction_status="completed",
+                )
+                invoice_id = inv.id
+        except Exception as e:
+            # Do not log the exception message; it can contain extracted field values.
+            logger.error(
+                "Invoice field extraction failed for document %s (error: %s)",
+                doc.id,
+                type(e).__name__,
+            )
 
     logger.info(
         "Stored document %s (%d page(s), %d bytes)",

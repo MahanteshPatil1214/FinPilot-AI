@@ -1,17 +1,78 @@
-version: '3.8'
 services:
   postgres:
     image: pgvector/pgvector:pg16
     container_name: finpilot-postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: finpilot
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-finpilot}
     ports:
-      - "5432:5432"
+      # Host port is configurable because a local PostgreSQL install may already
+      # occupy 5432. Override with POSTGRES_HOST_PORT (see .env.example).
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-finpilot}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    container_name: finpilot-backend
+    environment:
+      ENVIRONMENT: production
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-finpilot}
+      # Must be a JSON list; wildcards are rejected in production.
+      ALLOWED_ORIGINS: '["http://localhost:${FRONTEND_HOST_PORT:-8080}","http://127.0.0.1:${FRONTEND_HOST_PORT:-8080}"]'
+      # Leave empty to run the deterministic engine without any LLM calls.
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      # Identity boundary. "development" is a fixed demo identity (see the
+      # README limitation); "jwt" enables bearer-token auth via AUTH_JWT_SECRET.
+      AUTH_PROVIDER: ${AUTH_PROVIDER:-development}
+      AUTH_JWT_SECRET: ${AUTH_JWT_SECRET:-}
+      STORAGE_DIR: /app/storage
+    volumes:
+      - storage:/app/storage
+      # Persist the downloaded embedding model across restarts.
+      - hf_cache:/app/.cache/huggingface
+    ports:
+      - "${BACKEND_HOST_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import sys,urllib.request; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/v1/health/ready', timeout=3).status == 200 else 1)",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: finpilot-frontend
+    ports:
+      - "${FRONTEND_HOST_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_started
     restart: unless-stopped
 
 volumes:
   pgdata:
+  storage:
+  hf_cache:
