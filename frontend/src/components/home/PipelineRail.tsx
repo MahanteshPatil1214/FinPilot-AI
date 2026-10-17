@@ -1,66 +1,102 @@
+import {
+  PROVENANCE,
+  type ProvenanceKind,
+} from '../../lib/provenance'
+
 interface Stage {
   index: string
+  kind: ProvenanceKind
   title: string
   detail: string
-  tag: string
 }
 
-// The five real stages of the system, in order. Tags name the concrete mechanism
-// rather than a generic claim.
+// The five real stages of the system, in order. Each stage is tagged with the
+// provenance layer it produces, so deterministic logic, retrieved evidence,
+// AI hypotheses and human decisions stay visually distinguishable.
 const STAGES: Stage[] = [
   {
     index: '01',
-    title: 'Ingest',
-    detail: 'Invoice PDFs are parsed and bank statements imported row by row.',
-    tag: 'PyMuPDF · CSV',
+    kind: 'fact',
+    title: 'Financial inputs',
+    detail:
+      'Invoices, bank CSVs and supporting documents are ingested and stored as organization-scoped records.',
   },
   {
     index: '02',
-    title: 'Match',
-    detail: 'Deterministic rules weigh reference, amount and date window.',
-    tag: 'Decimal-safe',
+    kind: 'deterministic',
+    title: 'Deterministic reconciliation',
+    detail:
+      'Exact decimal arithmetic and rule-based matching link records and flag differences — no model in the loop.',
   },
   {
     index: '03',
-    title: 'Investigate',
-    detail: 'A bounded workflow gathers cited evidence and drafts a report.',
-    tag: 'LangGraph + RAG',
+    kind: 'evidence',
+    title: 'Document retrieval',
+    detail:
+      'Sentence Transformers embeddings (all-MiniLM-L6-v2, 384 dims) and PostgreSQL/pgvector return relevant passages.',
   },
   {
     index: '04',
-    title: 'Review',
-    detail: 'A human approves, rejects, or asks for more information.',
-    tag: 'Human gate',
+    kind: 'ai',
+    title: 'Agent investigation',
+    detail:
+      'A bounded LangGraph workflow reads evidence with read-only tools; Groq powers report generation when configured.',
   },
   {
     index: '05',
-    title: 'Audit',
-    detail: 'Every action is appended; entries are never edited or deleted.',
-    tag: 'Append-only',
+    kind: 'human',
+    title: 'Human review',
+    detail:
+      'Approve, reject or request more information. Decisions are versioned and written to an append-only audit trail.',
   },
 ]
 
 export function PipelineRail() {
+  const lastIndex = STAGES.length - 1
+
   return (
-    <ol className="grid gap-px overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
-      {STAGES.map((stage, position) => (
-        <li
-          key={stage.index}
-          className="relative bg-surface p-5"
-          style={{ animationDelay: `${position * 60}ms` }}
-        >
-          <div className="flex items-center justify-between">
-            <span className="num text-2xs text-accent">{stage.index}</span>
-            <span className="num text-2xs uppercase tracking-label text-muted">
-              {stage.tag}
+    <div>
+      <span className="num text-2xs uppercase tracking-label text-accent">
+        Technology pipeline
+      </span>
+      <h2 className="mt-3 font-serif text-2xl leading-snug text-ink">
+        From raw records to a reviewed decision
+      </h2>
+
+      <ol className="mt-6 grid gap-px overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
+        {STAGES.map((stage) => (
+          <li key={stage.index} className="relative bg-surface p-5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="num text-2xs text-muted">{stage.index}</span>
+              {stage.index !== STAGES[lastIndex].index ? (
+                <span
+                  aria-hidden="true"
+                  className="num hidden text-2xs text-line-strong lg:inline"
+                >
+                  →
+                </span>
+              ) : null}
+            </div>
+            <span
+              className={`mt-3 inline-flex items-center rounded-sm border px-1.5 py-px text-2xs font-semibold uppercase tracking-label ${PROVENANCE[stage.kind].className}`}
+            >
+              {PROVENANCE[stage.kind].short}
             </span>
-          </div>
-          <h3 className="mt-4 font-serif text-base text-ink">{stage.title}</h3>
-          <p className="mt-1.5 text-xs leading-relaxed text-graphite">
-            {stage.detail}
-          </p>
-        </li>
-      ))}
-    </ol>
+            <h3 className="mt-2 font-serif text-base leading-snug text-ink">
+              {stage.title}
+            </h3>
+            <p className="mt-1.5 text-xs leading-relaxed text-graphite">
+              {stage.detail}
+            </p>
+          </li>
+        ))}
+      </ol>
+
+      <p className="mt-4 max-w-3xl text-xs leading-relaxed text-muted">
+        Each stage produces a distinct, labelled layer. Deterministic logic,
+        retrieved evidence, AI-generated hypotheses and human decisions are never
+        merged into a single undifferentiated answer.
+      </p>
+    </div>
   )
 }
