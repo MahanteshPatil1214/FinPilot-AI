@@ -1,6 +1,12 @@
 import type {
   BankTransaction,
   AuditEventListResponse,
+  ChatMessageRequest,
+  ChatMessageResponse,
+  ConversationCreateRequest,
+  ConversationDetail,
+  ConversationListResponse,
+  ConversationSummary,
   DashboardSummary,
   DocumentDetail,
   DocumentListResponse,
@@ -10,6 +16,8 @@ import type {
   Investigation,
   InvestigationListResponse,
   Invoice,
+  KnowledgeAskRequest,
+  KnowledgeAskResponse,
   KnowledgeIndexResponse,
   ReconciliationMatch,
   ReconciliationResults,
@@ -203,6 +211,19 @@ export function indexDocument(
   )
 }
 
+// Evidence-grounded question answering. The backend retrieves matching document
+// passages, asks the model to answer from them and cite them, and returns an
+// honest "insufficient evidence" status when nothing clears the threshold. A
+// 503 means answer generation is not configured (no model available).
+export function askKnowledge(
+  payload: KnowledgeAskRequest,
+): Promise<KnowledgeAskResponse> {
+  return request<KnowledgeAskResponse>('/knowledge/ask', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
 interface InvestigationsParams {
   status?: string
   skip?: number
@@ -281,4 +302,47 @@ export function listAuditEvents(
   if (params.limit !== undefined) query.set('limit', String(params.limit))
   const suffix = query.toString() ? `?${query.toString()}` : ''
   return request<AuditEventListResponse>(`/audit/events${suffix}`)
+}
+
+// --- Assistant chat --------------------------------------------------------
+
+export function listConversations(): Promise<ConversationListResponse> {
+  return request<ConversationListResponse>('/chat/conversations')
+}
+
+export function createConversation(
+  payload: ConversationCreateRequest = {},
+): Promise<ConversationSummary> {
+  return request<ConversationSummary>('/chat/conversations', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export function getConversation(
+  conversationId: string,
+): Promise<ConversationDetail> {
+  return request<ConversationDetail>(
+    `/chat/conversations/${encodeURIComponent(conversationId)}`,
+  )
+}
+
+export function deleteConversation(conversationId: string): Promise<void> {
+  return request<void>(
+    `/chat/conversations/${encodeURIComponent(conversationId)}`,
+    { method: 'DELETE' },
+  )
+}
+
+// Sends one user turn and returns the persisted user and assistant messages.
+// The backend classifies the request, runs only the relevant read-only tools and
+// returns structured provenance; this call never mutates financial records.
+export function sendChatMessage(
+  conversationId: string,
+  payload: ChatMessageRequest,
+): Promise<ChatMessageResponse> {
+  return request<ChatMessageResponse>(
+    `/chat/conversations/${encodeURIComponent(conversationId)}/messages`,
+    { method: 'POST', body: JSON.stringify(payload) },
+  )
 }

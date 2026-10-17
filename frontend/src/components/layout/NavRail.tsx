@@ -4,7 +4,7 @@ import { NAV_GROUPS } from '../../lib/nav'
 
 export function NavRail() {
   return (
-    <nav className="flex h-full w-60 shrink-0 flex-col border-r border-line bg-surface max-lg:w-14">
+    <nav className="sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r border-line bg-surface max-lg:w-14">
       <Link
         to="/"
         aria-label="FinPilot AI home"

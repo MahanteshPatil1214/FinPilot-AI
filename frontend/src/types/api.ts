@@ -282,3 +282,143 @@ export interface HealthStatus {
   status: string
   service: string
 }
+
+// --- Knowledge & Ask -------------------------------------------------------
+// Mirrors app/schemas/knowledge.py. An answer is grounded only in retrieved
+// document passages, and every citation points at the exact chunk and page it
+// came from. When nothing clears the relevance threshold (or the model reports
+// the evidence is insufficient) the endpoint returns status
+// "insufficient_evidence" with an empty citation list rather than an invented
+// answer, so the client never fabricates a source.
+
+export interface KnowledgeFilter {
+  document_id?: string | null
+  document_type?: string | null
+}
+
+export interface KnowledgeAskRequest {
+  query: string
+  top_k?: number | null
+  filters?: KnowledgeFilter | null
+}
+
+export type KnowledgeAnswerStatus = 'answered' | 'insufficient_evidence'
+
+export interface KnowledgeCitation {
+  index: number
+  document_id: string
+  filename: string
+  page_number: number | null
+  chunk_id: string
+  score: number
+}
+
+export interface KnowledgeEvidence {
+  chunk_id: string
+  document_id: string
+  filename: string
+  document_type: string | null
+  page_number: number | null
+  content: string
+  score: number
+}
+
+export interface KnowledgeAskResponse {
+  query: string
+  status: KnowledgeAnswerStatus | string
+  answer: string
+  citations: KnowledgeCitation[]
+  evidence: KnowledgeEvidence[]
+}
+
+// --- Assistant chat --------------------------------------------------------
+// Mirrors app/schemas/chat.py. A conversation stores the transcript the user
+// chose to send plus the structured provenance the assistant produced: the
+// outcome, the tool calls it actually ran (with an honest status each), the
+// citations it grounded the answer in, and clickable references to the records
+// it consulted. No financial amount is ever computed or invented client-side;
+// money rendered in an answer arrives as decimal text inside `content`.
+
+export type ChatOutcome =
+  | 'answered'
+  | 'success'
+  | 'insufficient_evidence'
+  | 'needs_clarification'
+  | 'unavailable'
+  | 'unsupported'
+  | 'error'
+
+export type ChatToolStatus = 'ok' | 'empty' | 'error' | 'skipped'
+
+export interface ChatToolCall {
+  name: string
+  label: string
+  status: ChatToolStatus | string
+  summary: string
+  duration_ms: number
+}
+
+export interface ChatCitation {
+  index: number
+  document_id: string
+  filename: string
+  page_number: number | null
+  chunk_id: string
+  score: number
+}
+
+export interface ChatResultRef {
+  kind: string
+  id: string
+  label: string
+  href: string
+  status: string | null
+}
+
+export interface ChatMessage {
+  id: string
+  role: 'user' | 'assistant' | string
+  content: string
+  outcome: ChatOutcome | string | null
+  tool_calls: ChatToolCall[]
+  citations: ChatCitation[]
+  result_refs: ChatResultRef[]
+  created_at: string | null
+}
+
+export interface ConversationSummary {
+  id: string
+  title: string | null
+  message_count: number
+  created_at: string | null
+  updated_at: string | null
+}
+
+export interface ConversationListResponse {
+  total: number
+  items: ConversationSummary[]
+}
+
+export interface ConversationDetail {
+  id: string
+  organization_id: string
+  title: string | null
+  created_at: string | null
+  updated_at: string | null
+  messages: ChatMessage[]
+}
+
+export interface ConversationCreateRequest {
+  title?: string | null
+}
+
+export interface ChatMessageRequest {
+  content: string
+  attachment_document_ids?: string[]
+}
+
+export interface ChatMessageResponse {
+  conversation_id: string
+  user_message: ChatMessage
+  assistant_message: ChatMessage
+}

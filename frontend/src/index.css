@@ -3,19 +3,28 @@
 @tailwind utilities;
 
 @layer base {
-  html,
-  body,
-  #root {
+  /* The document (not an inner element) is the scroll container. `html` keeps a
+     definite height so `body` can fill the viewport via min-height while still
+     growing with its content. Pinning html/body/#root to `height: 100%` forces
+     a nested scroll container, which stops the page background from covering
+     the content viewport and makes the document height inconsistent. */
+  html {
     height: 100%;
   }
 
   body {
+    min-height: 100%;
     @apply bg-paper font-sans text-ink antialiased;
     font-feature-settings: 'tnum' 1;
   }
 
   ::selection {
     @apply bg-accent-soft;
+  }
+
+  :focus-visible {
+    outline: 2px solid #0f5c52;
+    outline-offset: 2px;
   }
 }
 
