@@ -7,3 +7,5 @@ from .document_chunk import DocumentChunk  # noqa
 from .investigation import Investigation  # noqa
 from .investigation_review import InvestigationReview  # noqa
 from .audit_event import AuditEvent  # noqa
+from .chat_conversation import ChatConversation  # noqa
+from .chat_message import ChatMessage  # noqa

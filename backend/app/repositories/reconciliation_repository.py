@@ -103,6 +103,39 @@ def get_match(
     )
 
 
+def search_matches_with_records(
+    db: Session,
+    organization_id: str,
+    status: Optional[str] = None,
+    limit: int = 100,
+) -> List[Tuple[ReconciliationMatch, Optional[Invoice], Optional[BankTransaction]]]:
+    """Return matches (optionally by status) joined to their invoice/transaction.
+
+    Read-only and organization-scoped. The join lets a caller reason about the
+    effective amount (transaction amount, else invoice total) without a second
+    round-trip per row. Ordering is deterministic for stable pagination.
+    """
+    query = (
+        db.query(ReconciliationMatch, Invoice, BankTransaction)
+        .outerjoin(Invoice, ReconciliationMatch.invoice_id == Invoice.id)
+        .outerjoin(
+            BankTransaction,
+            ReconciliationMatch.transaction_id == BankTransaction.id,
+        )
+        .filter(ReconciliationMatch.organization_id == organization_id)
+    )
+    if status is not None:
+        query = query.filter(ReconciliationMatch.match_status == status)
+    return (
+        query.order_by(
+            ReconciliationMatch.match_status,
+            ReconciliationMatch.id,
+        )
+        .limit(limit)
+        .all()
+    )
+
+
 def count_by_status(db: Session, organization_id: str) -> Dict[str, int]:
     rows = (
         db.query(ReconciliationMatch.match_status, func.count())

@@ -422,3 +422,31 @@ def build_matches(invoices, transactions, date_window_days=30):
         add(None, transaction.id, STATUS_UNMATCHED, METHOD_NONE, None, reason)
 
     return results
+
+
+def run_reconciliation(db, organization_id: str, date_window_days=None) -> dict:
+    """Run the deterministic engine and persist results for one organization.
+
+    This is the single orchestration entry point shared by the HTTP route and
+    the assistant, so the two can never diverge. It loads the organization's
+    invoices and transactions, computes matches with the pure engine, and
+    atomically replaces the stored results. Returns a small summary dict.
+    """
+    # Imported here to keep the module's pure matching logic free of I/O imports.
+    from app.core.config import settings
+    from app.repositories import reconciliation_repository as repo
+
+    window = (
+        settings.RECONCILIATION_DATE_WINDOW_DAYS
+        if date_window_days is None
+        else date_window_days
+    )
+    invoices = repo.list_invoices_for_org(db, organization_id)
+    transactions = repo.list_transactions_for_org(db, organization_id)
+    results = build_matches(invoices, transactions, window)
+    repo.replace_matches_for_org(db, organization_id, results)
+    return {
+        "date_window_days": window,
+        "total_matches": len(results),
+        "counts": summarize(results),
+    }

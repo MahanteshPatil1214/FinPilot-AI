@@ -57,8 +57,20 @@ class Settings(BaseSettings):
     # guessing.
     RAG_MIN_SCORE: float = 0.35
 
-    # Answer-generation model (retrieval works without it).
-    GROQ_MODEL_NAME: str = "llama-3.1-8b-instant"
+    # Answer-generation model (retrieval works without it). Groq retired the
+    # llama-3.1 family for this API; gpt-oss-20b is a currently served, fast
+    # chat model. Override with GROQ_MODEL_NAME if your account differs.
+    GROQ_MODEL_NAME: str = "openai/gpt-oss-20b"
+    # Bound every model call so a slow provider can never hang a request.
+    GROQ_TIMEOUT_SECONDS: float = 30.0
+    # Transient transport retries. 1 means at most two attempts per call.
+    GROQ_MAX_RETRIES: int = 1
+
+    # --- Assistant orchestration ---
+    # Hard wall-clock budget for one chat turn, and the maximum number of
+    # allowlisted tools a single turn may execute. Both prevent runaway loops.
+    CHAT_TURN_TIMEOUT_SECONDS: float = 20.0
+    CHAT_MAX_TOOL_CALLS: int = 4
 
     # --- Identity / authentication boundary ---
     # development: fixed local identity (never a security boundary).

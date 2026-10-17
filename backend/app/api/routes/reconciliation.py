@@ -35,31 +35,25 @@ def run_reconciliation(
             )
         window = payload.date_window_days
 
-    invoices = repo.list_invoices_for_org(db, organization_id)
-    transactions = repo.list_transactions_for_org(db, organization_id)
-
-    results = service.build_matches(invoices, transactions, window)
-
     try:
-        repo.replace_matches_for_org(db, organization_id, results)
+        summary = service.run_reconciliation(db, organization_id, window)
     except Exception as exc:  # pragma: no cover - defensive
         # Log only the type; instance messages may embed amounts/descriptions.
         logger.error("Reconciliation run failed (error: %s)", type(exc).__name__)
         raise HTTPException(status_code=500, detail="Failed to store reconciliation results")
 
-    counts = service.summarize(results)
     logger.info(
-        "Reconciled %d invoice(s) against %d transaction(s); %d result row(s)",
-        len(invoices),
-        len(transactions),
-        len(results),
+        "Reconciled organization %s with window %d days; %d result row(s)",
+        organization_id,
+        summary["date_window_days"],
+        summary["total_matches"],
     )
     return ReconciliationRunResponse(
         organization_id=organization_id,
-        date_window_days=window,
+        date_window_days=summary["date_window_days"],
         generated_at=datetime.now(timezone.utc),
-        total_matches=len(results),
-        counts=counts,
+        total_matches=summary["total_matches"],
+        counts=summary["counts"],
     )
 
 

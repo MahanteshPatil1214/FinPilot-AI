@@ -65,29 +65,21 @@ def _citations(evidence: List[Dict]) -> List[Dict]:
     ]
 
 
-def answer_question(
-    db: Session,
+def answer_from_evidence(
     query: str,
-    organization_id: str,
-    embedder: EmbeddingProvider,
     llm: LLMClient,
-    top_k: Optional[int] = None,
-    document_id: Optional[str] = None,
-    document_type: Optional[str] = None,
+    evidence: List[Dict],
     min_score: Optional[float] = None,
 ) -> Dict:
-    """Retrieve evidence and produce a grounded, cited answer (or a refusal)."""
+    """Answer strictly from already-retrieved evidence, or refuse honestly.
+
+    Shared by single-source ask and the chat orchestrator (which may merge
+    evidence from several attached documents). Evidence is treated as untrusted
+    data: citations are built from the retrieved records themselves, never from
+    model output, so a document can never invent a source.
+    """
     min_score = settings.RAG_MIN_SCORE if min_score is None else min_score
-    retrieved = retrieve(
-        db,
-        query,
-        organization_id,
-        embedder,
-        top_k=top_k,
-        document_id=document_id,
-        document_type=document_type,
-    )
-    usable = [item for item in retrieved if item["score"] >= min_score]
+    usable = [item for item in evidence if item["score"] >= min_score]
 
     if not usable:
         return {
@@ -120,3 +112,27 @@ def answer_question(
         "citations": _citations(usable),
         "evidence": usable,
     }
+
+
+def answer_question(
+    db: Session,
+    query: str,
+    organization_id: str,
+    embedder: EmbeddingProvider,
+    llm: LLMClient,
+    top_k: Optional[int] = None,
+    document_id: Optional[str] = None,
+    document_type: Optional[str] = None,
+    min_score: Optional[float] = None,
+) -> Dict:
+    """Retrieve evidence and produce a grounded, cited answer (or a refusal)."""
+    retrieved = retrieve(
+        db,
+        query,
+        organization_id,
+        embedder,
+        top_k=top_k,
+        document_id=document_id,
+        document_type=document_type,
+    )
+    return answer_from_evidence(query, llm, retrieved, min_score=min_score)

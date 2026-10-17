@@ -84,6 +84,38 @@ def get_transaction(
     )
 
 
+def search_transactions(
+    db: Session,
+    organization_id: str,
+    reference: Optional[str] = None,
+    amount_min: Optional[object] = None,
+    limit: int = 50,
+) -> List[BankTransaction]:
+    """Organization-scoped transaction search with allowlisted filters.
+
+    ``reference`` matches the reference, description or counterparty
+    (case-insensitive substring); ``amount_min`` is an inclusive floor on the
+    stored amount. No caller-supplied SQL or column names are accepted.
+    """
+    query = db.query(BankTransaction).filter(
+        BankTransaction.organization_id == organization_id
+    )
+    if reference:
+        pattern = f"%{reference.strip().lower()}%"
+        query = query.filter(
+            func.lower(BankTransaction.transaction_reference).like(pattern)
+            | func.lower(BankTransaction.description).like(pattern)
+            | func.lower(BankTransaction.counterparty).like(pattern)
+        )
+    if amount_min is not None:
+        query = query.filter(BankTransaction.amount >= amount_min)
+    return (
+        query.order_by(BankTransaction.transaction_date.desc(), BankTransaction.id)
+        .limit(limit)
+        .all()
+    )
+
+
 def count_transactions(db: Session, organization_id: str) -> int:
     return (
         db.query(func.count(BankTransaction.id))

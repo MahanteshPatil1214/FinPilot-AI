@@ -16,6 +16,7 @@ from app.api.routes import (
     investigations,
     audit,
     dashboard,
+    chat,
 )
 from app.core.config import settings
 from app.core.exceptions import (
@@ -101,3 +102,4 @@ app.include_router(knowledge.router, prefix=settings.API_V1_STR)
 app.include_router(investigations.router, prefix=settings.API_V1_STR)
 app.include_router(audit.router, prefix=settings.API_V1_STR)
 app.include_router(dashboard.router, prefix=settings.API_V1_STR)
+app.include_router(chat.router, prefix=settings.API_V1_STR)

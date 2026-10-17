@@ -14,6 +14,8 @@ from app.models import (  # noqa
     Investigation,
     InvestigationReview,
     AuditEvent,
+    ChatConversation,
+    ChatMessage,
 )
 
 logger = logging.getLogger(__name__)

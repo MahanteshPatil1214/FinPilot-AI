@@ -45,6 +45,22 @@ def get_invoice(
     )
 
 
+def get_invoice_by_number(
+    db: Session, organization_id: str, invoice_number: str
+) -> Optional[Invoice]:
+    """Case-insensitive lookup by the human invoice number (org-scoped)."""
+    if not invoice_number:
+        return None
+    return (
+        db.query(Invoice)
+        .filter(
+            Invoice.organization_id == organization_id,
+            func.lower(Invoice.invoice_number) == invoice_number.strip().lower(),
+        )
+        .first()
+    )
+
+
 def count_invoices(db: Session, organization_id: str) -> int:
     return (
         db.query(func.count(Invoice.id))
