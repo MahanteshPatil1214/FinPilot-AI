@@ -185,11 +185,16 @@ def post_message(
             "role": message.role,
             "content": message.content,
             "result_refs": _payload(message).get("result_refs") or [],
+            "attachment_document_ids": _payload(message).get("attachment_document_ids") or [],
         }
         for message in chat_repository.list_messages(
             db, organization_id, conversation_id
         )
     ]
+
+    user_payload = None
+    if payload.attachment_document_ids:
+        user_payload = {"attachment_document_ids": payload.attachment_document_ids}
 
     user_message = chat_repository.add_message(
         db,
@@ -197,6 +202,7 @@ def post_message(
         organization_id=organization_id,
         role="user",
         content=payload.content,
+        payload=user_payload,
     )
     chat_repository.set_title_if_empty(
         db, conversation, _derive_title(payload.content)

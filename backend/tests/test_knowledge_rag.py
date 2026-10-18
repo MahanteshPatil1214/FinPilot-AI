@@ -11,6 +11,7 @@ from app.models.document import Document
 from app.models.document_chunk import DocumentChunk
 from app.models.document_page import DocumentPage
 from app.repositories import document_repository
+from app.services import rag_service
 from app.services.llm_client import LLMUnavailable
 from app.services.text_chunker import chunk_pages, clean_extracted_text, split_text
 
@@ -333,3 +334,64 @@ def test_ask_validates_empty_query():
     override(embedder=FakeEmbedder(), llm=FakeLLM())
     response = client.post(ASK_URL, json={"query": ""})
     assert response.status_code == 422
+
+
+def _payment_evidence():
+    return [
+        {
+            "document_id": "doc-policy",
+            "filename": "vendor_policy_acme.pdf",
+            "page_number": 1,
+            "chunk_id": "chunk-policy",
+            "score": 0.49,
+            "content": "Vendor Payment Policy. Applies to invoice INV-2026-0001.",
+        },
+        {
+            "document_id": "doc-invoice",
+            "filename": "invoice_acme_2026_0001.pdf",
+            "page_number": 1,
+            "chunk_id": "chunk-invoice",
+            "score": 0.42,
+            "content": "Tax Invoice Invoice No: INV-2026-0001\nPayment terms: Net 30",
+        },
+    ]
+
+
+def test_payment_terms_answered_deterministically_when_model_refuses():
+    # The model ignores the retrieved invoice line and refuses; the deterministic
+    # grounded fallback answers from the literal, cited passage instead.
+    llm = FakeLLM(reply="INSUFFICIENT_EVIDENCE")
+    result = rag_service.answer_from_evidence(
+        "What is the standard payment term in the vendor payment policy?",
+        llm,
+        _payment_evidence(),
+    )
+    assert result["status"] == "answered"
+    assert "Net 30" in result["answer"]
+    assert result["answer"].endswith("[2].")
+    assert result["citations"][0]["filename"] == "vendor_policy_acme.pdf"
+    assert llm.calls == 1
+
+
+def test_payment_terms_fallback_leaves_unrelated_questions_insufficient():
+    llm = FakeLLM(reply="INSUFFICIENT_EVIDENCE")
+    result = rag_service.answer_from_evidence(
+        "What is the invoice total?",
+        llm,
+        _payment_evidence(),
+    )
+    assert result["status"] == "insufficient_evidence"
+    assert result["citations"] == []
+    assert llm.calls == 1
+
+
+def test_payment_terms_fallback_stays_insufficient_without_a_literal_value():
+    llm = FakeLLM(reply="INSUFFICIENT_EVIDENCE")
+    result = rag_service.answer_from_evidence(
+        "What are the payment terms?",
+        llm,
+        [_payment_evidence()[0]],
+    )
+    assert result["status"] == "insufficient_evidence"
+    assert result["citations"] == []
+    assert llm.calls == 1

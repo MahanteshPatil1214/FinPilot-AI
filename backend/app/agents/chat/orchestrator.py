@@ -10,9 +10,10 @@ can never choose a tool, mutate a record, or invent a citation.
 """
 
 import logging
+import re
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from sqlalchemy.orm import Session
 
@@ -22,6 +23,7 @@ from app.agents.chat.context import TurnContext
 from app.agents.chat.tools import ToolRunner, TurnBudget, as_decimal
 from app.core.config import settings
 from app.repositories import (
+    chunk_repository,
     document_repository,
     investigation_repository,
     invoice_repository,
@@ -167,8 +169,45 @@ def _citations_from_evidence(evidence: List[Dict]) -> List[Dict]:
     return citations
 
 
-def _usable_evidence(evidence: List[Dict]) -> List[Dict]:
-    return [item for item in evidence if item["score"] >= settings.RAG_MIN_SCORE]
+def _usable_evidence(
+    evidence: List[Dict], min_score: Optional[float] = None
+) -> List[Dict]:
+    threshold = settings.RAG_MIN_SCORE if min_score is None else min_score
+    return [item for item in evidence if item["score"] >= threshold]
+
+
+_DISCOUNT_PCT_RE = re.compile(
+    r"(\d+(?:\.\d+)?)\s*(?:%|percent|per\s+cent)", re.IGNORECASE
+)
+_DISCOUNT_FLAT_RE = re.compile(
+    r"discount\s*(?:of|is|:|=)?\s*(?:₹|rs\.?|inr|usd|\$)?\s*"
+    r"([\d,]+(?:\.\d+)?)"
+    r"|(?:₹|rs\.?|inr|usd|\$)?\s*([\d,]+(?:\.\d+)?)\s*"
+    r"(?:early\s+)?(?:payment\s+)?discount",
+    re.IGNORECASE,
+)
+
+
+def _extract_discount_policy(text: str):
+    """Extract a documented discount from one passage as (kind, Decimal).
+
+    ``kind`` is ``"rate"`` for a percentage and ``"flat"`` for a fixed amount.
+    The extraction is purely literal: the model never supplies the figure.
+    """
+    body = text or ""
+    if re.search(r"\b(discount|rate|interest|penalt(?:y|ies))\b", body, re.I):
+        pct = _DISCOUNT_PCT_RE.search(body)
+        if pct:
+            value = as_decimal(pct.group(1))
+            if value is not None:
+                return ("rate", value)
+    flat = _DISCOUNT_FLAT_RE.search(body)
+    if flat:
+        raw = flat.group(1) or flat.group(2)
+        value = as_decimal(raw)
+        if value is not None:
+            return ("flat", value)
+    return None
 
 
 def _evidence_markdown(evidence: List[Dict]) -> str:
@@ -188,10 +227,11 @@ def _evidence_markdown(evidence: List[Dict]) -> str:
     return "\n".join(lines)
 
 
-def _latest_refs(history: List[Dict]) -> Dict[str, Optional[str]]:
-    """Carry the most recent invoice/match reference forward for follow-ups."""
+def _latest_refs(history: List[Dict]) -> Dict[str, Any]:
+    """Carry the most recent invoice/match/attachment reference forward for follow-ups."""
     prior_invoice = None
     prior_match = None
+    prior_attachments: List[str] = []
     for message in reversed(history or []):
         for ref in message.get("result_refs") or []:
             kind = ref.get("kind")
@@ -199,9 +239,19 @@ def _latest_refs(history: List[Dict]) -> Dict[str, Optional[str]]:
                 prior_invoice = ref.get("id")
             if kind == "reconciliation" and prior_match is None:
                 prior_match = ref.get("id")
-        if prior_invoice and prior_match:
+            if kind == "document" and not prior_attachments:
+                doc_id = ref.get("id")
+                if doc_id and doc_id not in prior_attachments:
+                    prior_attachments.append(doc_id)
+        if not prior_attachments and message.get("attachment_document_ids"):
+            prior_attachments = list(message.get("attachment_document_ids"))
+        if prior_invoice and prior_match and prior_attachments:
             break
-    return {"invoice_id": prior_invoice, "match_id": prior_match}
+    return {
+        "invoice_id": prior_invoice,
+        "match_id": prior_match,
+        "attachment_document_ids": prior_attachments,
+    }
 
 
 # --- handlers ----------------------------------------------------------------
@@ -254,41 +304,134 @@ def _handle_general(ctx, content, db, organization_id, embedder, llm, runner, **
 
 
 def _retrieve_evidence(
-    ctx: TurnContext, content, db, organization_id, embedder, runner
-) -> List[Dict]:
+    ctx: TurnContext, content, db, organization_id, embedder, runner, query=None
+) -> Tuple[List[Dict], Optional[str]]:
     attachments = ctx.attachment_document_ids[:5]
+    search_text = query or content
     merged: Dict[str, Dict] = {}
+    error_reason = None
+
     if attachments:
+        valid_attachments = 0
+        unindexed_attachments = 0
+        not_found_attachments = 0
+
         for doc_id in attachments:
             document = document_repository.get_document(db, organization_id, doc_id)
             if document is None:
+                cross_org = (
+                    db.query(document_repository.Document.id)
+                    .filter(
+                        document_repository.Document.id == doc_id,
+                        document_repository.Document.organization_id != organization_id,
+                    )
+                    .first()
+                    is not None
+                )
+                rejection = "cross_organization_denial" if cross_org else "not_found"
+                logger.warning(
+                    "Attachment resolution rejected (document_id=%s, organization_id=%s, reason=%s)",
+                    doc_id,
+                    organization_id,
+                    rejection,
+                )
                 runner.record(
                     "resolve_attachment",
                     "Resolve attached document",
                     "error",
                     "Attached document was not found in this workspace",
                 )
+                not_found_attachments += 1
                 continue
-            rows = runner.run(
-                "search_documents",
-                "Search attached document",
-                retrieval_service.retrieve,
-                db,
-                content,
-                organization_id,
-                embedder,
-                document_id=doc_id,
-                summary=f"Searched {document.original_filename}",
+
+            chunk_count = chunk_repository.count_chunks(db, organization_id, doc_id)
+            if chunk_count == 0:
+                logger.info(
+                    "Attachment unindexed (document_id=%s, organization_id=%s, page_count=%d)",
+                    doc_id,
+                    organization_id,
+                    document.page_count or 0,
+                )
+                runner.record(
+                    "resolve_attachment",
+                    "Resolve attached document",
+                    "error",
+                    "This document has not been indexed yet",
+                )
+                unindexed_attachments += 1
+                continue
+
+            valid_attachments += 1
+
+            # Determine search queries:
+            # For a summary or questions touching education/skills, retrieve enough relevant chunks
+            # so that we do not rely on a single top-ranked chunk if it omits one section.
+            search_queries = [search_text]
+            lowered_q = search_text.lower()
+            is_summary = bool(
+                re.search(
+                    r"\b(summar|overview|profile|resume|cv|skills?|education|experience|background)\b",
+                    lowered_q,
+                )
             )
-            for row in rows or []:
-                merged[row["chunk_id"]] = row
+            if is_summary:
+                if any(k in lowered_q for k in ("education", "summar", "resume", "cv", "profile")):
+                    search_queries.append(
+                        "education degree university college academic qualifications graduation"
+                    )
+                if any(k in lowered_q for k in ("skill", "summar", "resume", "cv", "profile")):
+                    search_queries.append(
+                        "technical skills technologies programming languages tools frameworks"
+                    )
+
+            for q in search_queries:
+                rows = runner.run(
+                    "search_documents",
+                    "Search attached document",
+                    retrieval_service.retrieve,
+                    db,
+                    q,
+                    organization_id,
+                    embedder,
+                    document_id=doc_id,
+                    top_k=max(settings.RAG_TOP_K, 10) if is_summary else settings.RAG_TOP_K,
+                    summary=f"Searched {document.original_filename}",
+                )
+                for row in rows or []:
+                    cid = row["chunk_id"]
+                    if cid not in merged or row["score"] > merged[cid]["score"]:
+                        merged[cid] = row
+
+            if chunk_count <= 10 or is_summary:
+                all_chunks = chunk_repository.list_chunks_for_document(db, organization_id, doc_id)
+                for c in all_chunks:
+                    if c.id not in merged:
+                        merged[c.id] = retrieval_service._evidence_from(c, document, score=0.5)
+
+            pages = sorted(list({
+                item.get("page_number")
+                for item in merged.values()
+                if item.get("page_number") is not None
+            }))
+            logger.info(
+                "Attached document evidence retrieved (document_id=%s, retrieval_count=%d, pages=%s)",
+                doc_id,
+                len(merged),
+                pages,
+            )
+
+        if valid_attachments == 0:
+            if unindexed_attachments > 0:
+                error_reason = "unindexed"
+            elif not_found_attachments > 0:
+                error_reason = "not_found"
     else:
         rows = runner.run(
             "search_documents",
             "Search indexed documents",
             retrieval_service.retrieve,
             db,
-            content,
+            search_text,
             organization_id,
             embedder,
         )
@@ -296,19 +439,34 @@ def _retrieve_evidence(
             merged[row["chunk_id"]] = row
 
     ordered = sorted(merged.values(), key=lambda item: item["score"], reverse=True)
-    return ordered[: settings.RAG_TOP_K]
+    top_limit = max(settings.RAG_TOP_K, 10) if attachments else settings.RAG_TOP_K
+    return ordered[:top_limit], error_reason
 
 
 def _handle_document_qa(
     ctx, content, db, organization_id, embedder, llm, runner, **_
 ) -> TurnResult:
-    evidence = _retrieve_evidence(
+    evidence, error_reason = _retrieve_evidence(
         ctx, content, db, organization_id, embedder, runner
     )
+    if error_reason == "unindexed":
+        return TurnResult(
+            outcome=OUTCOME_INSUFFICIENT,
+            content="This document has not been indexed yet. Please index the document before asking questions about it.",
+        )
+    if error_reason == "not_found":
+        return TurnResult(
+            outcome=OUTCOME_INSUFFICIENT,
+            content=rag_service.INSUFFICIENT_MESSAGE,
+        )
+
+    min_score = 0.0 if ctx.attachment_document_ids else settings.RAG_MIN_SCORE
     try:
-        result = rag_service.answer_from_evidence(content, llm, evidence)
+        result = rag_service.answer_from_evidence(
+            content, llm, evidence, min_score=min_score
+        )
         usable = _usable_evidence(
-            result.get("evidence") or []
+            result.get("evidence") or [], min_score=min_score
         )
         if result["status"] == rag_service.STATUS_ANSWERED:
             runner.record(
@@ -348,7 +506,7 @@ def _handle_document_qa(
             "error",
             "No language model is configured",
         )
-        usable = _usable_evidence(evidence)
+        usable = _usable_evidence(evidence, min_score=min_score)
         if usable:
             return TurnResult(
                 outcome=OUTCOME_UNAVAILABLE,
@@ -363,6 +521,137 @@ def _handle_document_qa(
             outcome=OUTCOME_INSUFFICIENT,
             content=rag_service.INSUFFICIENT_MESSAGE,
         )
+
+
+def _handle_grounded_calculation(
+    ctx, content, db, organization_id, embedder, llm, runner, **_
+) -> TurnResult:
+    """Deterministically apply a documented discount to the user's amount.
+
+    The model never computes the figure: Python extracts the documented rate or
+    flat amount from the retrieved policy passage and does the arithmetic with
+    ``Decimal``. If the policy only documents a flat amount, that is reported as
+    fixed (it does not scale with the subtotal).
+    """
+    amount = ctx.amount
+    if amount is None:
+        return TurnResult(
+            outcome=OUTCOME_CLARIFY,
+            content=(
+                "What amount should I apply the policy to? Give me the pre-tax "
+                "subtotal (for example `₹10,000`) and I'll work out the discount "
+                "from the policy."
+            ),
+        )
+
+    evidence, _ = _retrieve_evidence(
+        ctx,
+        content,
+        db,
+        organization_id,
+        embedder,
+        runner,
+        query=(
+            "early payment discount policy rate percentage "
+            "vendor agreement terms"
+            + (f" {ctx.invoice_number}" if ctx.invoice_number else "")
+        ),
+    )
+    usable = _usable_evidence(evidence)
+    if not usable:
+        return TurnResult(
+            outcome=OUTCOME_INSUFFICIENT,
+            content=(
+                "I couldn't find a policy passage above the relevance threshold "
+                "that documents a discount or rate, so I can't compute this. "
+                "Try attaching the relevant policy document."
+            ),
+        )
+
+    policy = None
+    source: Optional[Dict] = None
+    for item in usable:
+        found = _extract_discount_policy(item.get("content") or "")
+        if found is not None:
+            policy = found
+            source = item
+            break
+
+    if policy is None:
+        runner.record(
+            "compute_discount",
+            "Compute discount from policy",
+            "empty",
+            "No documented discount or rate in the retrieved passages",
+        )
+        return TurnResult(
+            outcome=OUTCOME_INSUFFICIENT,
+            content=(
+                "The retrieved policy passages don't state a discount amount or "
+                "percentage rate, so I can't compute a grounded figure."
+                + _evidence_markdown(usable)
+            ),
+        )
+
+    kind, value = policy
+    citations = _citations_from_evidence(usable)
+    cite_index = next(
+        (
+            c["index"]
+            for c in citations
+            if source is not None and c["chunk_id"] == source["chunk_id"]
+        ),
+        1,
+    )
+    source_label = source["filename"] if source else "the policy"
+    refs = (
+        [_ref("document", source["document_id"], source["filename"], "/documents")]
+        if source
+        else []
+    )
+
+    if kind == "rate":
+        discount = (amount * value / Decimal(100)).quantize(Decimal("0.01"))
+        runner.record(
+            "compute_discount",
+            "Compute discount from policy",
+            "ok",
+            f"{value}% of {_money(amount)} = {_money(discount)}",
+        )
+        lines = [
+            "**Discount calculation**",
+            "",
+            f"- Pre-tax subtotal: {_money(amount)}",
+            f"- Documented rate ({source_label}): {value}% [{cite_index}]",
+            "",
+            f"**{_money(amount)} × {value}% = {_money(discount)}**",
+        ]
+    else:
+        discount = value
+        runner.record(
+            "compute_discount",
+            "Compute discount from policy",
+            "ok",
+            f"Flat documented discount {_money(discount)}",
+        )
+        lines = [
+            "**Discount**",
+            "",
+            f"{source_label} grants a **flat early-payment discount of "
+            f"{_money(discount)}** [{cite_index}]. It does not define a percentage "
+            "rate, so the discount is a fixed amount and does not scale with the "
+            "subtotal.",
+            "",
+            f"- Pre-tax subtotal provided: {_money(amount)}",
+            f"- Documented discount (fixed, from policy): **{_money(discount)}** [{cite_index}]",
+        ]
+
+    return TurnResult(
+        outcome=OUTCOME_ANSWERED,
+        content="\n".join(lines),
+        citations=citations,
+        result_refs=refs,
+    )
 
 
 def _handle_financial_query(
@@ -743,6 +1032,46 @@ def _handle_investigation_run(
             ),
         )
 
+    existing = runner.run(
+        "find_active_investigation",
+        "Check for an open investigation",
+        investigation_repository.get_active_investigation,
+        db,
+        organization_id,
+        invoice_id=invoice_id,
+        reconciliation_match_id=match_id,
+        summary="Checked for an existing investigation",
+    )
+
+    if existing is not None:
+        runner.record(
+            "reuse_investigation",
+            "Reuse existing investigation",
+            "ok",
+            f"Reusing open investigation {str(existing.id)[:8]}",
+        )
+        investigation = existing
+        if (
+            investigation_service.parse_report(investigation) is None
+            and investigation.status in ("pending", "running")
+        ):
+            investigation = runner.run(
+                "run_investigation",
+                "Run investigation workflow",
+                investigation_service.run_investigation,
+                db,
+                investigation,
+                embedder,
+                llm,
+                summary="Executed the bounded LangGraph workflow",
+            )
+            if investigation is None:
+                return TurnResult(
+                    outcome=OUTCOME_ERROR,
+                    content="The investigation workflow did not complete.",
+                )
+        return _render_investigation_report(investigation, existing=True)
+
     investigation = runner.run(
         "create_investigation",
         "Create investigation",
@@ -777,14 +1106,31 @@ def _handle_investigation_run(
             result_refs=[_investigation_ref(investigation)] if investigation else [],
         )
 
+    return _render_investigation_report(investigation, existing=False)
+
+
+def _render_investigation_report(investigation, *, existing: bool) -> TurnResult:
     report = investigation_service.parse_report(investigation)
     refs = [_investigation_ref(investigation)]
-    lines = [
-        f"**Investigation {str(investigation.id)[:8]}** — "
-        f"status: `{investigation.status}`"
-        + (f", workflow: `{investigation.workflow_state}`" if investigation.workflow_state else ""),
-        "",
-    ]
+    lines = []
+    if existing:
+        lines.append(
+            "An investigation for this record is already open, so I reused it "
+            "rather than creating a duplicate. Here is its latest report."
+        )
+        lines.append("")
+    lines.extend(
+        [
+            f"**Investigation {str(investigation.id)[:8]}** — "
+            f"status: `{investigation.status}`"
+            + (
+                f", workflow: `{investigation.workflow_state}`"
+                if investigation.workflow_state
+                else ""
+            ),
+            "",
+        ]
+    )
     if report:
         lines.append(f"**Summary.** {report.get('summary', '')}")
         lines.append("")
@@ -792,7 +1138,9 @@ def _handle_investigation_run(
         if findings:
             lines.append("**Findings (kind indicates provenance):**")
             for finding in findings:
-                lines.append(f"- [{finding.get('kind', 'info')}] {finding.get('statement', '')}")
+                lines.append(
+                    f"- [{finding.get('kind', 'info')}] {finding.get('statement', '')}"
+                )
             lines.append("")
         missing = report.get("missing_evidence") or []
         if missing:
@@ -946,6 +1294,55 @@ def _handle_report(ctx, content, db, organization_id, embedder, llm, runner, **_
     return TurnResult(OUTCOME_SUCCESS, "\n".join(lines), result_refs=refs)
 
 
+def _handle_dashboard(ctx, db, organization_id, runner, **_):
+    """Aggregate, organization-scoped counts for the workspace dashboard."""
+    summary = runner.run(
+        "dashboard_summary",
+        "Load workspace summary",
+        dashboard_service.build_summary,
+        db,
+        organization_id,
+        summary="Read aggregate counts",
+    )
+    if summary is None:
+        return TurnResult(
+            outcome=OUTCOME_ERROR,
+            content="I couldn't load the workspace summary just now.",
+        )
+    recon = summary["reconciliation"]
+    reviews = summary["reviews"]
+    lines = [
+        "**Workspace summary**",
+        "",
+        f"- Invoices: **{summary['invoices_imported']}**",
+        f"- Transactions: **{summary['transactions_imported']}**",
+        f"- Documents: **{summary['documents_total']}** "
+        f"({summary['documents_indexed']} indexed, "
+        f"{summary['documents_pending_indexing']} pending)",
+        f"- Reconciliation rows: **{recon['total']}**",
+        "",
+        "**Reconciliation by status**",
+        "",
+        "| Status | Count |",
+        "| --- | --- |",
+    ]
+    for status_name, count in recon["counts"].items():
+        lines.append(f"| {status_name} | {count} |")
+    lines.extend(
+        [
+            "",
+            f"Investigations awaiting review: **"
+            f"{summary['investigations_awaiting_review']}**.",
+            f"Reviews recorded: **{reviews['total']}**.",
+        ]
+    )
+    refs = [
+        _ref("reconciliation", "list", "Open reconciliation", "/reconciliation"),
+        _ref("review", "list", "Open report review", "/reviews"),
+    ]
+    return TurnResult(OUTCOME_SUCCESS, "\n".join(lines), result_refs=refs)
+
+
 def _handle_reconciliation_run(
     ctx, db, organization_id, embedder, llm, runner, **_
 ):
@@ -988,7 +1385,9 @@ _DISPATCH = {
     router.INVESTIGATION_RUN: _handle_investigation_run,
     router.REVIEW_QUEUE: _handle_review_queue,
     router.RECONCILIATION_RUN: _handle_reconciliation_run,
+    router.DASHBOARD: _handle_dashboard,
     router.REPORT: _handle_report,
+    router.GROUNDED_CALCULATION: _handle_grounded_calculation,
     router.DISCREPANCY: _handle_discrepancy,
     router.INVESTIGATION_LIST: _handle_investigation_list,
     router.FINANCIAL_QUERY: _handle_financial_query,
@@ -1014,6 +1413,7 @@ def handle_message(
         attachment_document_ids=attachment_document_ids,
         prior_invoice_id=carried.get("invoice_id"),
         prior_match_id=carried.get("match_id"),
+        prior_attachment_document_ids=carried.get("attachment_document_ids"),
     )
     runner = ToolRunner(budget=TurnBudget())
     handler = _DISPATCH.get(ctx.intent, _handle_general)
@@ -1030,7 +1430,7 @@ def handle_message(
             user_id=user_id,
         )
     except Exception as exc:  # noqa: BLE001 - one bad turn must not crash the API
-        logger.error("Assistant turn failed (intent=%s error=%s)", ctx.intent, type(exc).__name__)
+        logger.exception("Assistant turn failed (intent=%s error=%s)", ctx.intent, type(exc).__name__)
         result = TurnResult(
             outcome=OUTCOME_ERROR,
             content=(

@@ -209,20 +209,27 @@ test('requires a non-empty question', async ({ page }) => {
   await expect(page.getByText('Enter a question before asking.')).toBeVisible()
 })
 
-test('the sidebar links to Knowledge & Ask and marks it active', async ({
+test('Knowledge & Ask is no longer a primary navigation item but the route stays reachable', async ({
   page,
 }) => {
   await installMocks(page)
   await page.goto('/dashboard')
 
-  const link = page.getByRole('link', { name: 'Knowledge & Ask' })
-  await expect(link).toBeVisible()
-  await link.click()
-
-  await expect(page).toHaveURL(/\/knowledge$/)
+  // The duplicate primary navigation entry was removed in favour of the
+  // Assistant workspace.
   await expect(
     page.getByRole('link', { name: 'Knowledge & Ask' }),
-  ).toHaveAttribute('aria-current', 'page')
+  ).toHaveCount(0)
+
+  // Direct navigation to the legacy route remains safe and offers a migration
+  // link into the Assistant.
+  await page.goto('/knowledge')
+  await expect(
+    page.getByRole('heading', { name: 'Knowledge & Ask' }),
+  ).toBeVisible()
+  await expect(
+    page.getByText(/Document Q&A now lives in the/),
+  ).toBeVisible()
 })
 
 test('narrow layout keeps the page within the viewport', async ({ page }) => {

@@ -44,7 +44,7 @@ export function AssistantWelcome({
   disabled?: boolean
 }) {
   return (
-    <div className="flex min-w-0 flex-1 items-center justify-center overflow-y-auto px-6 py-10">
+    <div className="flex min-w-0 flex-1 items-center justify-center overflow-y-auto px-4 py-10 sm:px-6">
       <div className="w-full max-w-3xl">
         <div className="max-w-2xl">
           <h2 className="font-serif text-xl text-ink">
@@ -65,7 +65,7 @@ export function AssistantWelcome({
                 type="button"
                 onClick={() => onExample(capability.prompt)}
                 disabled={disabled}
-                className="group h-full w-full rounded-sm border border-line bg-surface px-4 py-3 text-left transition-colors hover:border-accent/40 hover:bg-accent-soft disabled:opacity-60"
+                className="group h-full w-full rounded-lg border border-line bg-surface px-4 py-3 text-left transition-colors hover:border-accent/40 hover:bg-accent-soft disabled:opacity-60"
               >
                 <span className="block text-sm font-medium text-ink">
                   {capability.title}

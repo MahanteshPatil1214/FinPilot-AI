@@ -79,6 +79,46 @@ def get_investigation(
     )
 
 
+# Statuses that are still "in flight" for deduplication: a case that has been
+# created but not yet closed by a terminal review decision. Terminal/failed
+# cases are not reused, so a fresh run can legitimately reopen an invoice.
+ACTIVE_STATUSES = ("pending", "running", "completed", "needs_review")
+
+
+def get_active_investigation(
+    db: Session,
+    organization_id: str,
+    *,
+    invoice_id: Optional[str] = None,
+    reconciliation_match_id: Optional[str] = None,
+) -> Optional[Investigation]:
+    """Return the most recent non-terminal investigation for the target record.
+
+    Used to avoid creating duplicate case files when a user asks to investigate
+    the same invoice or match more than once.
+    """
+    if not invoice_id and not reconciliation_match_id:
+        return None
+    query = db.query(Investigation).filter(
+        Investigation.organization_id == organization_id,
+        Investigation.status.in_(ACTIVE_STATUSES),
+    )
+    if invoice_id and reconciliation_match_id:
+        query = query.filter(
+            (Investigation.invoice_id == invoice_id)
+            | (Investigation.reconciliation_match_id == reconciliation_match_id)
+        )
+    elif invoice_id:
+        query = query.filter(Investigation.invoice_id == invoice_id)
+    else:
+        query = query.filter(
+            Investigation.reconciliation_match_id == reconciliation_match_id
+        )
+    return query.order_by(
+        Investigation.created_at.desc(), Investigation.id.desc()
+    ).first()
+
+
 def list_investigations(
     db: Session,
     organization_id: str,

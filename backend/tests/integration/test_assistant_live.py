@@ -61,10 +61,18 @@ def _new_conversation(client: httpx.Client) -> str:
     return response.json()["id"]
 
 
-def _ask(client: httpx.Client, conversation_id: str, content: str) -> dict:
+def _ask(
+    client: httpx.Client,
+    conversation_id: str,
+    content: str,
+    attachments=None,
+) -> dict:
+    payload = {"content": content}
+    if attachments:
+        payload["attachment_document_ids"] = attachments
     response = client.post(
         f"{API}/chat/conversations/{conversation_id}/messages",
-        json={"content": content},
+        json=payload,
         timeout=90,
     )
     assert response.status_code == 200, response.text
@@ -235,3 +243,71 @@ def test_org_scoping_isolates_conversations_in_real_db():
                 assert cur.fetchone() is not None, "org_2 row must persist"
                 cur.execute("DELETE FROM chat_conversations WHERE id=%s", (cid,))
                 conn.commit()
+
+
+def test_attached_resume_live_flow():
+    import pymupdf as fitz
+
+    doc = fitz.open()
+    page1 = doc.new_page()
+    page1.insert_text(
+        (50, 72),
+        "Alex Rivera\nSoftware Engineer\nEmail: alex@example.com\n"
+        "Education: Bachelor of Science in Computer Science, State University, 2021.\n"
+        "Technical Skills: Python, TypeScript, React, PostgreSQL, Docker, Git.\n"
+        "Experience: Software Developer at Tech Corp, building financial APIs.",
+    )
+    pdf_bytes = doc.tobytes()
+    doc.close()
+
+    with httpx.Client(base_url=BASE_URL, timeout=120) as client:
+        # Upload resume PDF
+        files = {
+            "file": ("Alex_Rivera_Resume.pdf", pdf_bytes, "application/pdf")
+        }
+        data = {"document_type": "other"}
+        upload_resp = client.post(f"{API}/documents/upload", files=files, data=data)
+        assert upload_resp.status_code == 200, upload_resp.text
+        doc_id = upload_resp.json()["document_id"]
+
+        # Index resume
+        index_resp = client.post(f"{API}/knowledge/index/{doc_id}")
+        assert index_resp.status_code == 200, index_resp.text
+
+        cid = _new_conversation(client)
+
+        # Turn 1: Ask name of person
+        ans1 = _ask(
+            client,
+            cid,
+            "What is name of person who resume is this?",
+            attachments=[doc_id],
+        )
+        assert ans1["outcome"] in ("answered", "unavailable")
+        assert len(ans1["citations"]) >= 1
+        assert ans1["citations"][0]["filename"] == "Alex_Rivera_Resume.pdf"
+        assert ans1["citations"][0]["page_number"] == 1
+
+        # Turn 2: Follow-up asking for summary without re-attaching
+        ans2 = _ask(
+            client,
+            cid,
+            "Summarize the education and technical skills listed in my attached resume.",
+            attachments=None,
+        )
+        assert ans2["outcome"] in ("answered", "unavailable")
+        assert len(ans2["citations"]) >= 1
+        assert any(c["filename"] == "Alex_Rivera_Resume.pdf" for c in ans2["citations"])
+
+        # Turn 3: Ask for missing evidence
+        ans3 = _ask(
+            client,
+            cid,
+            "What is the patent number listed in the attached resume?",
+            attachments=None,
+        )
+        assert ans3["outcome"] == "insufficient_evidence"
+
+        # Cleanup
+        client.delete(f"{API}/chat/conversations/{cid}")
+

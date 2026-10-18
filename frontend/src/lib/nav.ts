@@ -38,7 +38,6 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: '/investigations', label: 'Investigations', index: '06' },
       { to: '/reviews', label: 'Report review', index: '07' },
       { to: '/audit', label: 'Audit history', index: '08' },
-      { to: '/knowledge', label: 'Knowledge & Ask', index: '10' },
     ],
   },
   {

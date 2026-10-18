@@ -24,6 +24,13 @@ interface MockConversation {
   messages: MockMessage[]
 }
 
+interface MockDocument {
+  id: string
+  original_filename: string
+  processing_status: string
+  document_type: string
+}
+
 const ANSWERED_ASSISTANT: MockMessage = {
   id: 'msg-assistant-1',
   role: 'assistant',
@@ -67,6 +74,7 @@ interface MockState {
   nextAssistant: MockMessage
   messageStatus: number
   counter: number
+  documents: MockDocument[]
 }
 
 interface MockOptions {
@@ -74,6 +82,15 @@ interface MockOptions {
   nextAssistant?: MockMessage
   messageStatus?: number
   messageDelayMs?: number
+  documents?: MockDocument[]
+  failUploads?: string[]
+}
+
+function uploadedFilename(route: Route): string {
+  const buffer = route.request().postDataBuffer()
+  if (!buffer) return ''
+  const match = /filename="([^"]*)"/.exec(buffer.toString('latin1'))
+  return match ? match[1] : ''
 }
 
 function json(route: Route, status: number, body: unknown) {
@@ -95,7 +112,10 @@ async function installMocks(
     nextAssistant: options.nextAssistant ?? ANSWERED_ASSISTANT,
     messageStatus: options.messageStatus ?? 200,
     counter: 0,
+    documents: [...(options.documents ?? [])],
   }
+
+  let uploadSeq = 0
 
   await page.route(/\/api\/v1\/chat\/conversations\/[^/]+\/messages$/, async (route) => {
     const body = route.request().postDataJSON() as { content: string }
@@ -197,7 +217,39 @@ async function installMocks(
   })
 
   await page.route(/\/api\/v1\/documents(\?.*)?$/, async (route) => {
-    await json(route, 200, { total: 0, skip: 0, limit: 50, items: [] })
+    await json(route, 200, {
+      total: state.documents.length,
+      skip: 0,
+      limit: 50,
+      items: state.documents,
+    })
+  })
+
+  await page.route(/\/api\/v1\/documents\/upload$/, async (route) => {
+    const filename = uploadedFilename(route)
+    if ((options.failUploads ?? []).includes(filename)) {
+      await json(route, 500, { detail: 'Upload rejected' })
+      return
+    }
+    uploadSeq += 1
+    const documentId = `doc-upload-${uploadSeq}`
+    state.documents.push({
+      id: documentId,
+      original_filename: filename || 'upload.pdf',
+      processing_status: 'completed',
+      document_type: 'policy',
+    })
+    await json(route, 200, {
+      document_id: documentId,
+      invoice_id: null,
+      page_count: 1,
+      filename: filename || 'upload.pdf',
+      status: 'completed',
+    })
+  })
+
+  await page.route(/\/api\/v1\/knowledge\/index\/[^/]+$/, async (route) => {
+    await json(route, 200, { document_id: 'indexed', chunks_indexed: 1 })
   })
 
   return state
@@ -391,27 +443,238 @@ test('deleting a conversation requires an inline confirmation', async ({ page })
   ).toHaveCount(0)
 })
 
-test('the sidebar links to the Assistant and marks it active', async ({ page }) => {
+test('the workspace rail links to the Assistant, which opens standalone', async ({
+  page,
+}) => {
   await installMocks(page)
   await page.goto('/dashboard')
 
+  // Ordinary workspace routes keep the application navigation.
   const link = page.getByRole('link', { name: 'Assistant' })
   await expect(link).toBeVisible()
   await link.click()
 
   await expect(page).toHaveURL(/\/assistant$/)
-  await expect(page.getByRole('link', { name: 'Assistant' })).toHaveAttribute(
-    'aria-current',
-    'page',
-  )
+  // The assistant is a standalone workspace: the application rail is gone and
+  // the conversation history lives in its own panel.
+  await expect(page.locator('nav')).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Assistant' })).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'New conversation' }),
+  ).toBeVisible()
+})
+
+test('the conversation history panel collapses and reopens', async ({ page }) => {
+  await installMocks(page, { seed: [seededConversation()] })
+  await page.goto('/assistant')
+
+  const toggle = page.getByRole('button', { name: 'Toggle conversations' })
+  await expect(
+    page.getByRole('button', { name: 'New conversation' }),
+  ).toBeVisible()
+
+  await toggle.click()
+  await expect(
+    page.getByRole('button', { name: 'New conversation' }),
+  ).toHaveCount(0)
+
+  await toggle.click()
+  await expect(
+    page.getByRole('button', { name: 'New conversation' }),
+  ).toBeVisible()
 })
 
 test('the attach picker reports when no documents are available', async ({ page }) => {
   await installMocks(page, { seed: [seededConversation()] })
   await page.goto('/assistant')
 
-  await page.getByRole('button', { name: 'Attach' }).click()
+  await page.getByRole('button', { name: 'Attach files' }).click()
+  await page.getByRole('menuitem', { name: /Attach existing documents/ }).click()
   await expect(
     page.getByText('No documents are available to attach.'),
   ).toBeVisible()
+})
+
+test('the single attach button offers upload and existing-document options', async ({
+  page,
+}) => {
+  await installMocks(page)
+  await page.goto('/assistant')
+  await page.getByRole('button', { name: 'New conversation' }).click()
+
+  await page.getByRole('button', { name: 'Attach files' }).click()
+  const menu = page.getByRole('menu', { name: 'Attachment options' })
+  await expect(menu).toBeVisible()
+  await expect(
+    menu.getByRole('menuitem', { name: /Upload new PDFs/ }),
+  ).toBeVisible()
+  await expect(
+    menu.getByRole('menuitem', { name: /Attach existing documents/ }),
+  ).toBeVisible()
+})
+
+test('choosing Upload new PDFs opens the multi-file picker', async ({ page }) => {
+  await installMocks(page)
+  await page.goto('/assistant')
+  await page.getByRole('button', { name: 'New conversation' }).click()
+
+  await page.getByRole('button', { name: 'Attach files' }).click()
+  const chooser = page.waitForEvent('filechooser')
+  await page.getByRole('menuitem', { name: /Upload new PDFs/ }).click()
+  const fileChooser = await chooser
+  expect(fileChooser.isMultiple()).toBe(true)
+})
+
+test('the command menu stays hidden until the user types a slash', async ({
+  page,
+}) => {
+  await installMocks(page)
+  await page.goto('/assistant')
+  await page.getByRole('button', { name: 'New conversation' }).click()
+
+  await expect(
+    page.getByRole('listbox', { name: 'Slash commands' }),
+  ).toHaveCount(0)
+
+  await page.getByPlaceholder(/Ask about a document/).fill('/doc')
+  await expect(
+    page.getByRole('listbox', { name: 'Slash commands' }),
+  ).toBeVisible()
+})
+
+test('a slash command executes its real backend operation', async ({ page }) => {
+  const state = await installMocks(page)
+  await page.goto('/assistant')
+
+  await page.getByRole('button', { name: 'New conversation' }).click()
+  const composer = page.getByPlaceholder(/Ask about a document/)
+  await expect(composer).toBeEnabled()
+
+  await composer.fill('/dash')
+  await expect(
+    page.getByRole('listbox', { name: 'Slash commands' }),
+  ).toBeVisible()
+  await page.getByRole('option', { name: /\/dashboard/ }).click()
+
+  // Choosing the command sends its canonical prompt so the orchestrator runs
+  // the real operation rather than the client pretending to.
+  expect(state.messageBodies).toHaveLength(1)
+  expect(state.messageBodies[0]).toEqual({
+    content: 'Show the workspace summary.',
+  })
+})
+
+test('uploading a PDF attaches it to the next turn', async ({ page }) => {
+  const state = await installMocks(page)
+  await page.goto('/assistant')
+
+  await page.getByRole('button', { name: 'New conversation' }).click()
+  const composer = page.getByPlaceholder(/Ask about a document/)
+  await expect(composer).toBeEnabled()
+
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'vendor-policy.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4 synthetic'),
+  })
+
+  await expect(page.getByText('Ready')).toBeVisible()
+
+  await composer.fill('What are the payment terms?')
+  await page.getByRole('button', { name: 'Send' }).click()
+
+  expect(state.messageBodies).toHaveLength(1)
+  expect(state.messageBodies[0]).toEqual({
+    content: 'What are the payment terms?',
+    attachment_document_ids: ['doc-upload-1'],
+  })
+})
+
+test('a failed upload is reported honestly and never attached', async ({ page }) => {
+  const state = await installMocks(page, { failUploads: ['broken.pdf'] })
+  await page.goto('/assistant')
+
+  await page.getByRole('button', { name: 'New conversation' }).click()
+  const composer = page.getByPlaceholder(/Ask about a document/)
+  await expect(composer).toBeEnabled()
+
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'broken.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF'),
+  })
+
+  await expect(page.getByText('Failed')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible()
+
+  await composer.fill('What is the status?')
+  await page.getByRole('button', { name: 'Send' }).click()
+
+  expect(state.messageBodies).toHaveLength(1)
+  expect(state.messageBodies[0]).toEqual({ content: 'What is the status?' })
+})
+
+test('a partial upload failure keeps the successful file', async ({ page }) => {
+  const state = await installMocks(page, { failUploads: ['bad.pdf'] })
+  await page.goto('/assistant')
+
+  await page.getByRole('button', { name: 'New conversation' }).click()
+  const composer = page.getByPlaceholder(/Ask about a document/)
+  await expect(composer).toBeEnabled()
+
+  await page.locator('input[type="file"]').setInputFiles([
+    {
+      name: 'good.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from('%PDF good'),
+    },
+    {
+      name: 'bad.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from('%PDF bad'),
+    },
+  ])
+
+  await expect(page.getByText('Ready')).toBeVisible()
+  await expect(page.getByText('Failed')).toBeVisible()
+
+  await composer.fill('Compare these documents')
+  await page.getByRole('button', { name: 'Send' }).click()
+
+  expect(state.messageBodies).toHaveLength(1)
+  expect(state.messageBodies[0]).toEqual({
+    content: 'Compare these documents',
+    attachment_document_ids: ['doc-upload-1'],
+  })
+})
+
+test('attaching an existing document sends its id', async ({ page }) => {
+  const state = await installMocks(page, {
+    documents: [
+      {
+        id: 'doc-existing-1',
+        original_filename: 'vendor-agreement.pdf',
+        processing_status: 'completed',
+        document_type: 'policy',
+      },
+    ],
+  })
+  await page.goto('/assistant')
+
+  await page.getByRole('button', { name: 'New conversation' }).click()
+  const composer = page.getByPlaceholder(/Ask about a document/)
+  await expect(composer).toBeEnabled()
+
+  await page.getByRole('button', { name: 'Attach files' }).click()
+  await page.getByRole('menuitem', { name: /Attach existing documents/ }).click()
+  await page.getByRole('checkbox').check()
+
+  await composer.fill('Compare the payment terms across these policies.')
+  await page.getByRole('button', { name: 'Send' }).click()
+
+  expect(state.messageBodies).toHaveLength(1)
+  expect(state.messageBodies[0]).toEqual({
+    content: 'Compare the payment terms across these policies.',
+    attachment_document_ids: ['doc-existing-1'],
+  })
 })

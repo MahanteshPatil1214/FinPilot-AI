@@ -119,6 +119,23 @@ test('unsupported requests are refused, not answered', async ({ page }) => {
   await expect(page.getByText('Not supported')).toBeVisible({ timeout: 60_000 })
 })
 
+test('a slash command executes the real backend operation', async ({ page }) => {
+  const composer = await startConversation(page)
+
+  // Typing the command opens the autocomplete menu; choosing it sends the
+  // canonical prompt so the backend orchestrator runs the real dashboard query.
+  await composer.fill('/dashboard')
+  await page.getByRole('option', { name: /\/dashboard/ }).click()
+
+  const thread = page.getByRole('article')
+  await expect(
+    thread.getByText('Completed', { exact: true }),
+  ).toBeVisible({ timeout: 60_000 })
+  await expect(thread.getByText(/Workspace summary/i).first()).toBeVisible({
+    timeout: 60_000,
+  })
+})
+
 test('a conversation persists across reload and can be deleted', async ({ page }) => {
   const composer = await startConversation(page)
 
@@ -134,7 +151,7 @@ test('a conversation persists across reload and can be deleted', async ({ page }
     page.getByRole('article').getByText(/unmatched/i).first(),
   ).toBeVisible({ timeout: 60_000 })
 
-  // Delete via the inline confirmation in the sidebar; the rail shrinks by one.
+  // Delete via the inline confirmation in the history panel; it shrinks by one.
   const deleteButtons = page.getByRole('button', { name: /^Delete / })
   const before = await deleteButtons.count()
   await deleteButtons.first().click()

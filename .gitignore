@@ -53,3 +53,4 @@ backend/storage/
 
 # Docker
 docker-compose.override.yml
+.coverage

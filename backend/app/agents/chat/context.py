@@ -18,7 +18,9 @@ INVESTIGATION_RUN = "investigation_run"
 REVIEW_QUEUE = "review_queue"
 REVIEW_DECISION = "review_decision"
 RECONCILIATION_RUN = "reconciliation_run"
+DASHBOARD = "dashboard"
 REPORT = "report"
+GROUNDED_CALCULATION = "grounded_calculation"
 DISCREPANCY = "discrepancy"
 INVESTIGATION_LIST = "investigation_list"
 FINANCIAL_QUERY = "financial_query"
@@ -86,6 +88,10 @@ _RECONCILE_RUN_RE = re.compile(
     re.IGNORECASE,
 )
 _REPORT_RE = re.compile(r"\breport\b", re.IGNORECASE)
+_DASHBOARD_RE = re.compile(
+    r"\bdashboard\b|\bworkspace summary\b|\bworkspace overview\b",
+    re.IGNORECASE,
+)
 _DISCREPANCY_RE = re.compile(
     r"\b(underpaid|overpaid|discrepanc|short[\s-]?paid|difference|"
     r"why\s+was|why\s+is|compare|mismatch|variance)\b",
@@ -111,7 +117,20 @@ _FINANCIAL_RE = re.compile(
 )
 _DOCUMENT_RE = re.compile(
     r"\b(polic(?:y|ies)|terms?|clauses?|agreements?|contracts?|documents?|"
-    r"pdfs?|pages?|according to|say about|explain|what does|state[sd]?|wording)\b",
+    r"pdfs?|pages?|resumes?|cvs?|curriculum\s+vitae|attachments?|attached|"
+    r"files?|according to|say about|explain|what does|state[sd]?|wording)\b",
+    re.IGNORECASE,
+)
+_ATTACHMENT_CUE_RE = re.compile(
+    r"\b(attached|attachment|attachments|resume|resumes|cv|cvs)\b",
+    re.IGNORECASE,
+)
+_CALC_VERB_RE = re.compile(
+    r"\b(calculate|compute|work\s+out|derive|how\s+much\s+(?:is|would|will|does))\b",
+    re.IGNORECASE,
+)
+_CALC_SUBJECT_RE = re.compile(
+    r"\b(discount|interest|penalt(?:y|ies)|fee|tax|gst|vat|rate|percentage)\b",
     re.IGNORECASE,
 )
 
@@ -126,6 +145,7 @@ class TurnContext:
     match_id: Optional[str] = None
     status: Optional[str] = None
     min_amount: Optional[Decimal] = None
+    amount: Optional[Decimal] = None
     wants_reconcile: bool = False
     attachment_document_ids: List[str] = field(default_factory=list)
     period_label: Optional[str] = None
@@ -172,6 +192,7 @@ def classify(
     attachment_document_ids: Optional[List[str]] = None,
     prior_invoice_id: Optional[str] = None,
     prior_match_id: Optional[str] = None,
+    prior_attachment_document_ids: Optional[List[str]] = None,
 ) -> TurnContext:
     """Classify a message and extract allowlisted slots (deterministic)."""
     text = content or ""
@@ -185,12 +206,21 @@ def classify(
     if amount_match:
         min_amount = _to_decimal(amount_match.group(1))
 
+    # Carry forward attachments on follow-ups when appropriate
+    if not attachments and prior_attachment_document_ids:
+        has_record_reference = bool(
+            invoice_number or uuids or _detect_status(text) or amount_match
+        )
+        if _ATTACHMENT_CUE_RE.search(text) or _DOCUMENT_RE.search(text) or not has_record_reference:
+            attachments = list(prior_attachment_document_ids)
+
     ctx = TurnContext(
         intent=GENERAL,
         invoice_number=invoice_number,
         match_id=uuids[0] if uuids else None,
         status=_detect_status(text),
         min_amount=min_amount,
+        amount=extract_amount_from(text),
         attachment_document_ids=attachments,
         period_label=_detect_period(text),
     )
@@ -212,20 +242,22 @@ def classify(
         ctx.intent = REVIEW_DECISION
         return ctx
 
-    # 3. "Summarize investigations waiting for my review." Checked before the
-    #    generic investigate verb so the noun "investigations" does not hijack it.
+    # 3. An explicit investigation request (verb form). Checked before the
+    #    listing rule so phrases like "investigate ... tell me what remains
+    #    uncertain" are treated as a run, not a list (the noun "investigation"
+    #    plus a broad list word such as "what" must not hijack it).
+    if _INVESTIGATE_VERB_RE.search(text):
+        ctx.intent = INVESTIGATION_RUN
+        return ctx
+
+    # 4. "Summarize investigations waiting for my review."
     if _REVIEW_QUEUE_RE.search(text):
         ctx.intent = REVIEW_QUEUE
         return ctx
 
-    # 4. Listing investigations ("list investigations", "how many ...").
+    # 5. Listing investigations ("list investigations", "how many ...").
     if _INVESTIGATION_LIST_RE.search(text) and _LIST_WORDS_RE.search(text):
         ctx.intent = INVESTIGATION_LIST
-        return ctx
-
-    # 5. An explicit investigation request (verb form only).
-    if _INVESTIGATE_VERB_RE.search(text):
-        ctx.intent = INVESTIGATION_RUN
         return ctx
 
     # 6. "Run reconciliation."
@@ -233,23 +265,57 @@ def classify(
         ctx.intent = RECONCILIATION_RUN
         return ctx
 
-    # 7. "Generate a report of this month's reconciliation results."
+    # 7. "Show the workspace summary / dashboard." (aggregate counts only).
+    if _DASHBOARD_RE.search(text):
+        ctx.intent = DASHBOARD
+        return ctx
+
+    # 8. "Generate a report of this month's reconciliation results."
     if _REPORT_RE.search(text):
         ctx.intent = REPORT
         return ctx
 
-    # 8. A discrepancy explanation: an explicit discrepancy cue together with a
-    #    financial subject (or an invoice reference). The handler asks for the
-    #    specific record when none is resolvable.
+    # 9. A grounded calculation over a policy figure ("calculate the discount on
+    #    a 10,000 subtotal"). Requires an explicit amount so it never swallows
+    #    the qualitative "why was this underpaid" discrepancy question.
+    if (
+        _CALC_VERB_RE.search(text)
+        and _CALC_SUBJECT_RE.search(text)
+        and ctx.amount is not None
+    ):
+        ctx.intent = GROUNDED_CALCULATION
+        return ctx
+
+    # 10. Attached documents with no explicit record reference are a document
+    #     question, so a comparison spanning files ("compare the payment terms
+    #     in these two vendor policies") is answered from the documents rather
+    #     than being mistaken for a reconciliation discrepancy. This is checked
+    #     after the calculation rule so a grounded discount calculation over an
+    #     attached policy still wins, and after the action verbs above so an
+    #     explicit "run/investigate/summarize" still wins.
+    has_record_reference = bool(
+        ctx.status
+        or ctx.min_amount
+        or ctx.match_id
+        or invoice_number
+        or ctx.invoice_id
+    )
+    if attachments and not has_record_reference:
+        ctx.intent = DOCUMENT_QA
+        return ctx
+
+    # 11. A discrepancy explanation: an explicit discrepancy cue together with a
+    #     financial subject (or an invoice reference). The handler asks for the
+    #     specific record when none is resolvable.
     if _DISCREPANCY_RE.search(text) and (
         _FINANCIAL_RE.search(text) or invoice_number or ctx.invoice_id
     ):
         ctx.intent = DISCREPANCY
         return ctx
 
-    # 9. A document question: strong document cues, unless an explicit
-    #    financial filter (status / threshold / invoice reference / raw id) is
-    #    present in the message itself.
+    # 12. A document question: strong document cues, unless an explicit
+    #     financial filter (status / threshold / invoice reference / raw id) is
+    #     present in the message itself.
     has_financial_filter = bool(
         ctx.status or ctx.min_amount or invoice_number or uuids
     )
@@ -257,12 +323,12 @@ def classify(
         ctx.intent = DOCUMENT_QA
         return ctx
 
-    # 10. Any financial keyword with a filter, or an attached document.
+    # 13. Any financial keyword with a filter, or an attached document.
     if _FINANCIAL_RE.search(text):
         ctx.intent = FINANCIAL_QUERY
         return ctx
 
-    # 11. Attachments with no clearer signal become a document question.
+    # 14. Attachments with no clearer signal become a document question.
     if attachments:
         ctx.intent = DOCUMENT_QA
         return ctx

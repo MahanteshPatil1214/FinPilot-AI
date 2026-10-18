@@ -11,10 +11,9 @@ interface ConversationThreadProps {
   draftKey?: number
 }
 
-// The active conversation: its transcript, an optimistic "working" row while a
-// turn is in flight, an error banner if the turn fails, and the composer. The
-// suggestion draft (if any) is handed to the composer so an empty conversation
-// opened from a capability card is ready to send.
+// The active transcript. It scrolls, keeps the newest turn in view, shows an
+// honest "working" line while a turn is in flight, and surfaces a failed send
+// without losing the typed text (the composer keeps it so the user can retry).
 export function ConversationThread({
   conversationId,
   draft,
@@ -34,8 +33,8 @@ export function ConversationThread({
 
   return (
     <div className="flex min-w-0 flex-1 flex-col">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-3xl px-6 py-5">
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
           {detail.isLoading ? (
             <StateMessage kind="loading" title="Loading conversation…" />
           ) : detail.isError ? (
@@ -50,7 +49,7 @@ export function ConversationThread({
               This conversation is empty. Ask a question below to get started.
             </p>
           ) : (
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-7">
               {messages.map((message) => (
                 <MessageItem key={message.id} message={message} />
               ))}
@@ -66,7 +65,7 @@ export function ConversationThread({
       </div>
 
       {send.isError ? (
-        <div className="border-t border-status-risk/25 bg-status-riskSoft px-6 py-2">
+        <div className="border-t border-status-risk/25 bg-status-riskSoft px-4 py-2 sm:px-6">
           <p className="mx-auto max-w-3xl text-xs text-status-risk">
             The request could not be completed.{' '}
             {send.error instanceof Error ? send.error.message : ''}

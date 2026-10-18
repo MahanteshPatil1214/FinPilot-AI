@@ -211,7 +211,13 @@ def seed_match(invoice_id, transaction_id, status="partial_match", difference="3
         db.close()
 
 
-def seed_investigation(status="needs_review", report=None, org=ORG):
+def seed_investigation(
+    status="needs_review",
+    report=None,
+    org=ORG,
+    invoice_id=None,
+    reconciliation_match_id=None,
+):
     db = SessionLocal()
     try:
         investigation = Investigation(
@@ -222,6 +228,8 @@ def seed_investigation(status="needs_review", report=None, org=ORG):
             workflow_state="generate_report",
             report_json=report if report is not None else report_json(),
             report_version=1,
+            invoice_id=invoice_id,
+            reconciliation_match_id=reconciliation_match_id,
         )
         db.add(investigation)
         db.commit()
@@ -398,6 +406,94 @@ def test_attached_document_narrows_retrieval():
     assert assistant["citations"][0]["document_id"] == doc_id
 
 
+def test_multi_document_question_cites_each_attached_document():
+    first = seed_and_index_document(
+        "vendor_a_policy.pdf",
+        [(1, "Vendor A payment terms require net 30 settlement.")],
+    )
+    second = seed_and_index_document(
+        "vendor_b_policy.pdf",
+        [(1, "Vendor B payment terms require net 60 settlement.")],
+    )
+    override(
+        llm=FakeLLM(reply="Vendor A pays net 30 and Vendor B pays net 60 [1][2].")
+    )
+    conversation_id = new_conversation()
+    body = ask(
+        conversation_id,
+        "Compare the payment terms across these vendor policies.",
+        attachments=[first, second],
+    )
+    assistant = body["assistant_message"]
+    assert assistant["outcome"] == "answered"
+    cited = {citation["document_id"] for citation in assistant["citations"]}
+    assert cited == {first, second}
+
+
+def test_attachment_from_another_organization_is_never_consulted():
+    # A document that belongs to a different organization must be rejected: its
+    # content never reaches the answer and no citation points at it.
+    db = SessionLocal()
+    try:
+        other = document_repository.create_document_with_pages(
+            db,
+            document={
+                "id": str(uuid.uuid4()),
+                "organization_id": "org_other",
+                "original_filename": "confidential.pdf",
+                "document_type": "policy",
+                "processing_status": "completed",
+            },
+            pages=[
+                {
+                    "page_number": 1,
+                    "content": "Confidential payment terms require net 90 settlement.",
+                    "char_count": 52,
+                }
+            ],
+        )
+        other_id = other.id
+    finally:
+        db.close()
+
+    override(llm=FakeLLM())
+    conversation_id = new_conversation()
+    body = ask(
+        conversation_id,
+        "According to this document, what are the payment terms?",
+        attachments=[other_id],
+    )
+    assistant = body["assistant_message"]
+    assert "net 90" not in assistant["content"].lower()
+    assert all(
+        citation["document_id"] != other_id
+        for citation in assistant["citations"]
+    )
+    assert any(
+        call["name"] == "resolve_attachment" and call["status"] == "error"
+        for call in assistant["tool_calls"]
+    )
+    assert assistant["outcome"] == "insufficient_evidence"
+
+
+def test_dashboard_command_returns_workspace_summary():
+    seed_invoice()
+    override(llm=FakeLLM())
+    conversation_id = new_conversation()
+    body = ask(conversation_id, "Show the workspace summary.")
+    assistant = body["assistant_message"]
+    assert assistant["outcome"] == "success"
+    assert "Workspace summary" in assistant["content"]
+    assert any(
+        call["name"] == "dashboard_summary" and call["status"] == "ok"
+        for call in assistant["tool_calls"]
+    )
+    assert any(
+        ref["kind"] == "reconciliation" for ref in assistant["result_refs"]
+    )
+
+
+
 # --- financial query ---------------------------------------------------------
 
 
@@ -564,6 +660,133 @@ def test_investigate_invoice_runs_workflow_and_returns_report():
     assert count == 1
 
 
+def test_investigate_with_uncertainty_phrase_runs_the_workflow():
+    # Regression: "tell me what remains uncertain" used to route to the list
+    # intent instead of running the investigation.
+    invoice_id = seed_invoice()
+    txn_id = seed_transaction()
+    seed_match(invoice_id, txn_id, status="needs_review", difference="300.00")
+    override(llm=ScriptedLLM([report_json()]))
+    conversation_id = new_conversation()
+    body = ask(
+        conversation_id,
+        "Investigate invoice INV-104 and tell me what remains uncertain. "
+        "Do not approve anything.",
+    )
+    assistant = body["assistant_message"]
+    assert assistant["outcome"] == "success"
+    assert any(ref["kind"] == "investigation" for ref in assistant["result_refs"])
+
+
+def test_investigate_reuses_existing_active_investigation():
+    invoice_id = seed_invoice()
+    existing_id = seed_investigation(
+        status="needs_review", invoice_id=invoice_id
+    )
+    override(llm=ScriptedLLM([report_json()]))
+    conversation_id = new_conversation()
+    body = ask(conversation_id, "Investigate invoice INV-104")
+    assistant = body["assistant_message"]
+    assert assistant["outcome"] == "success"
+    assert "reused" in assistant["content"].lower()
+    assert any(
+        call["name"] == "reuse_investigation"
+        for call in assistant["tool_calls"]
+    )
+    db = SessionLocal()
+    try:
+        ids = [
+            row.id
+            for row in db.query(Investigation)
+            .filter_by(organization_id=ORG, invoice_id=invoice_id)
+            .all()
+        ]
+    finally:
+        db.close()
+    assert ids == [existing_id], "no duplicate investigation should be created"
+
+
+def test_investigate_reopens_after_terminal_review():
+    invoice_id = seed_invoice()
+    seed_investigation(status="rejected", invoice_id=invoice_id)
+    txn_id = seed_transaction()
+    seed_match(invoice_id, txn_id, status="needs_review", difference="300.00")
+    override(llm=ScriptedLLM([report_json()]))
+    conversation_id = new_conversation()
+    body = ask(conversation_id, "Investigate invoice INV-104")
+    assistant = body["assistant_message"]
+    assert assistant["outcome"] == "success"
+    db = SessionLocal()
+    try:
+        count = (
+            db.query(Investigation)
+            .filter_by(organization_id=ORG, invoice_id=invoice_id)
+            .count()
+        )
+    finally:
+        db.close()
+    assert count == 2, "a terminal case must not block a fresh investigation"
+
+
+# --- grounded calculation ----------------------------------------------------
+
+
+def test_calculation_applies_documented_flat_discount():
+    seed_and_index_document(
+        "vendor_policy.pdf",
+        [
+            (
+                1,
+                "Vendor Payment Policy. Where the buyer settles early the vendor "
+                "grants a 300.00 early payment discount.",
+            )
+        ],
+    )
+    override(llm=UnavailableLLM())
+    conversation_id = new_conversation()
+    body = ask(
+        conversation_id,
+        "Calculate the discount on an eligible pre-tax subtotal of ₹10,000. "
+        "Cite the policy.",
+    )
+    assistant = body["assistant_message"]
+    assert assistant["outcome"] == "answered"
+    assert "300.00" in assistant["content"]
+    assert assistant["citations"]
+    assert assistant["citations"][0]["filename"] == "vendor_policy.pdf"
+
+
+def test_calculation_applies_documented_percentage_rate():
+    seed_and_index_document(
+        "rate_policy.pdf",
+        [(1, "Vendor agreement: a 2.5% early payment discount on the subtotal.")],
+    )
+    override(llm=UnavailableLLM())
+    conversation_id = new_conversation()
+    body = ask(
+        conversation_id,
+        "Calculate the discount on a pre-tax subtotal of 10,000. Cite the policy.",
+    )
+    assistant = body["assistant_message"]
+    assert assistant["outcome"] == "answered"
+    assert "250.00" in assistant["content"]
+
+
+def test_calculation_without_documented_discount_is_insufficient():
+    seed_and_index_document(
+        "policy.pdf",
+        [(1, "Vendor payment terms require settlement within 45 days of invoice.")],
+    )
+    override(llm=FakeLLM())
+    conversation_id = new_conversation()
+    body = ask(
+        conversation_id,
+        "Calculate the discount on a pre-tax subtotal of ₹10,000. Cite the policy.",
+    )
+    assistant = body["assistant_message"]
+    assert assistant["outcome"] == "insufficient_evidence"
+
+
 def test_investigate_without_target_asks_for_clarification():
     override(llm=FakeLLM())
     conversation_id = new_conversation()
@@ -591,3 +814,192 @@ def test_assistant_message_persists_structured_payload():
     assert assistant["outcome"] == "success"
     assert assistant["tool_calls"], "tool-call provenance should be recorded"
     assert detail["title"], "title should be derived from the first message"
+
+
+# --- regression tests: attached resume and follow-up context ------------------
+
+
+class SyntheticResumeLLM:
+    def __init__(self):
+        self.calls = 0
+
+    def answer(self, system_prompt, user_prompt):
+        self.calls += 1
+        lowered = user_prompt.lower()
+        if "what is name of person who resume is this" in lowered:
+            return "The person whose resume this is is Alex Rivera [1]."
+        if "summarize the education and technical skills" in lowered:
+            return (
+                "Education: Bachelor of Science in Computer Science from State University [1]. "
+                "Technical Skills: Python, TypeScript, React, PostgreSQL, Docker [2]."
+            )
+        if "patent" in lowered:
+            return "INSUFFICIENT_EVIDENCE"
+        return "The document contains the requested details [1]."
+
+
+def seed_synthetic_resume(org=ORG):
+    return seed_and_index_document(
+        "Alex_Rivera_Resume.pdf",
+        [
+            (
+                1,
+                "Alex Rivera\nSoftware Engineer\nEmail: alex@example.com\n"
+                "Education: Bachelor of Science in Computer Science, State University, 2021.",
+            ),
+            (
+                2,
+                "Technical Skills: Python, TypeScript, React, PostgreSQL, Docker, Git.\n"
+                "Experience: Software Developer at Tech Corp, building financial APIs.",
+            ),
+        ],
+        document_type="other",
+    )
+
+
+def test_resume_prompt_person_name_with_citations():
+    doc_id = seed_synthetic_resume()
+    override(llm=SyntheticResumeLLM())
+    conversation_id = new_conversation()
+
+    body = ask(
+        conversation_id,
+        "What is name of person who resume is this?",
+        attachments=[doc_id],
+    )
+    assistant = body["assistant_message"]
+    assert assistant["outcome"] == "answered"
+    assert "Alex Rivera" in assistant["content"]
+    assert len(assistant["citations"]) >= 1
+    citation = assistant["citations"][0]
+    assert citation["filename"] == "Alex_Rivera_Resume.pdf"
+    assert citation["page_number"] == 1
+    assert citation["document_id"] == doc_id
+    assert citation["chunk_id"]
+
+
+def test_resume_prompt_summarize_education_and_technical_skills():
+    doc_id = seed_synthetic_resume()
+    override(llm=SyntheticResumeLLM())
+    conversation_id = new_conversation()
+
+    body = ask(
+        conversation_id,
+        "Summarize the education and technical skills listed in my attached resume.",
+        attachments=[doc_id],
+    )
+    assistant = body["assistant_message"]
+    assert assistant["outcome"] == "answered"
+    assert "Education" in assistant["content"]
+    assert "Technical Skills" in assistant["content"]
+    assert len(assistant["citations"]) >= 1
+    assert any(c["filename"] == "Alex_Rivera_Resume.pdf" for c in assistant["citations"])
+
+
+def test_resume_missing_evidence_returns_honest_insufficient():
+    doc_id = seed_synthetic_resume()
+    override(llm=SyntheticResumeLLM())
+    conversation_id = new_conversation()
+
+    body = ask(
+        conversation_id,
+        "What is the patent number listed in the attached resume?",
+        attachments=[doc_id],
+    )
+    assistant = body["assistant_message"]
+    assert assistant["outcome"] == "insufficient_evidence"
+    assert len(assistant["citations"]) == 0
+    assert "patent" not in assistant["content"].lower()
+
+
+def test_resume_unindexed_document_returns_actionable_error():
+    db = SessionLocal()
+    try:
+        doc = document_repository.create_document_with_pages(
+            db,
+            document={
+                "id": str(uuid.uuid4()),
+                "organization_id": ORG,
+                "original_filename": "Unindexed_Resume.pdf",
+                "document_type": "other",
+                "processing_status": "completed",
+            },
+            pages=[{"page_number": 1, "content": "Unindexed resume content", "char_count": 24}],
+        )
+        unindexed_id = doc.id
+    finally:
+        db.close()
+
+    override(llm=SyntheticResumeLLM())
+    conversation_id = new_conversation()
+
+    body = ask(
+        conversation_id,
+        "What is name of person who resume is this?",
+        attachments=[unindexed_id],
+    )
+    assistant = body["assistant_message"]
+    assert assistant["outcome"] == "insufficient_evidence"
+    assert "This document has not been indexed yet" in assistant["content"]
+    assert "I don't have access" not in assistant["content"]
+
+
+def test_resume_attachment_context_retained_across_follow_up():
+    doc_id = seed_synthetic_resume()
+    override(llm=SyntheticResumeLLM())
+    conversation_id = new_conversation()
+
+    # Turn 1: user attaches resume and asks for name
+    body1 = ask(
+        conversation_id,
+        "What is name of person who resume is this?",
+        attachments=[doc_id],
+    )
+    assert body1["assistant_message"]["outcome"] == "answered"
+    assert "Alex Rivera" in body1["assistant_message"]["content"]
+
+    # Turn 2: user asks follow-up WITHOUT re-attaching document ID in request
+    body2 = ask(
+        conversation_id,
+        "Summarize the education and technical skills listed in my attached resume.",
+        attachments=None,
+    )
+    assistant2 = body2["assistant_message"]
+    assert assistant2["outcome"] == "answered"
+    assert "Education" in assistant2["content"]
+    assert "Technical Skills" in assistant2["content"]
+    assert len(assistant2["citations"]) >= 1
+    assert assistant2["citations"][0]["document_id"] == doc_id
+
+
+def test_resume_cross_organization_access_denied():
+    db = SessionLocal()
+    try:
+        other_doc = document_repository.create_document_with_pages(
+            db,
+            document={
+                "id": str(uuid.uuid4()),
+                "organization_id": "org_other_tenant",
+                "original_filename": "Other_Org_Resume.pdf",
+                "document_type": "other",
+                "processing_status": "completed",
+            },
+            pages=[{"page_number": 1, "content": "Secret Other Org Resume of Bob Secret", "char_count": 35}],
+        )
+        other_id = other_doc.id
+    finally:
+        db.close()
+
+    override(llm=SyntheticResumeLLM())
+    conversation_id = new_conversation()
+
+    body = ask(
+        conversation_id,
+        "What is name of person who resume is this?",
+        attachments=[other_id],
+    )
+    assistant = body["assistant_message"]
+    assert "Bob Secret" not in assistant["content"]
+    assert all(c["document_id"] != other_id for c in assistant["citations"])
+    assert assistant["outcome"] == "insufficient_evidence"
+
