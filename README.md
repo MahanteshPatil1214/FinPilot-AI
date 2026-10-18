@@ -30,6 +30,8 @@ human reviews before anything is acted on.
 - [Production notes](#production-notes)
 - [Security and limitations](#security-and-limitations)
 - [Project structure](#project-structure)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## What it does
 
@@ -337,6 +339,16 @@ finpilot-ai/
 └── .env.example
 ```
 
+## Contributing
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for local
+setup, the required test suites, coding guidelines, and the pull-request
+checklist. Genuine limitations and improvement ideas are tracked as
+[GitHub Issues](https://github.com/MahanteshPatil1214/FinPilot-AI/issues).
+
 ## License
 
-Portfolio project for demonstration purposes.
+Licensed under the [MIT License](LICENSE).
+
+Portfolio project for demonstration purposes — see the notice at the top of
+this README regarding production use.
