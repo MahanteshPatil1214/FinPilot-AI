@@ -1,0 +1,134 @@
+{
+  "questions": 18,
+  "corpus_chunks": 2,
+  "hit_at_1_pct": 94.44444444444444,
+  "hit_at_5_pct": 100.0,
+  "per_question": [
+    {
+      "q": "What is the invoice number on the tax invoice?",
+      "key": "inv-2026-0001",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.6003
+    },
+    {
+      "q": "What is the total amount on invoice INV-2026-0001?",
+      "key": "12,000.00",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.6576
+    },
+    {
+      "q": "What is the invoice date?",
+      "key": "05/01/2026",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.559
+    },
+    {
+      "q": "What is the due date on the invoice?",
+      "key": "05/02/2026",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.5431
+    },
+    {
+      "q": "Who is the buyer named on the invoice?",
+      "key": "northwind traders",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.5168
+    },
+    {
+      "q": "Who is the vendor named on the invoice?",
+      "key": "acme supplies",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.5511
+    },
+    {
+      "q": "What service is billed on the invoice?",
+      "key": "consulting services",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.4847
+    },
+    {
+      "q": "How many units were invoiced?",
+      "key": "10 units",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.5313
+    },
+    {
+      "q": "What currency is the invoice denominated in?",
+      "key": "inr",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.533
+    },
+    {
+      "q": "What payment terms are stated on the invoice?",
+      "key": "net 30",
+      "hit_at_1": false,
+      "hit_at_5": true,
+      "top1_score": 0.6032
+    },
+    {
+      "q": "What early payment discount does the vendor grant?",
+      "key": "300.00",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.5737
+    },
+    {
+      "q": "Under what condition is the discount granted?",
+      "key": "early-settlement",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.4472
+    },
+    {
+      "q": "Does the policy allow full settlement below the invoiced total?",
+      "key": "closing the invoice",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.6581
+    },
+    {
+      "q": "What is the name of the vendor payment policy document?",
+      "key": "vendor payment policy",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.5593
+    },
+    {
+      "q": "Which company issued the vendor payment policy?",
+      "key": "acme supplies private limited",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.5643
+    },
+    {
+      "q": "Which invoice number does the vendor policy apply to?",
+      "key": "inv-2026-0001",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.6135
+    },
+    {
+      "q": "What kind of discount is described in the policy?",
+      "key": "early payment discount",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.4406
+    },
+    {
+      "q": "Within what window must the buyer settle to earn the discount?",
+      "key": "settles in full",
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top1_score": 0.4403
+    }
+  ]
+}

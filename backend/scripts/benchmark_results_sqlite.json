@@ -1,0 +1,510 @@
+{
+  "loc": {
+    "YAML": {
+      "files": 1,
+      "total_lines": 78,
+      "code_lines": 68
+    },
+    "Markdown": {
+      "files": 2,
+      "total_lines": 440,
+      "code_lines": 299
+    },
+    "Python": {
+      "files": 100,
+      "total_lines": 15797,
+      "code_lines": 12999
+    },
+    "HTML": {
+      "files": 1,
+      "total_lines": 18,
+      "code_lines": 18
+    },
+    "TypeScript": {
+      "files": 43,
+      "total_lines": 7015,
+      "code_lines": 5886
+    },
+    "TypeScript (React)": {
+      "files": 73,
+      "total_lines": 7582,
+      "code_lines": 6979
+    },
+    "CSS": {
+      "files": 1,
+      "total_lines": 66,
+      "code_lines": 57
+    }
+  },
+  "api_endpoints": {
+    "total": 34,
+    "v1": 31
+  },
+  "db_tables": {
+    "count": 11,
+    "names": [
+      "audit_events",
+      "bank_transactions",
+      "chat_conversations",
+      "chat_messages",
+      "document_chunks",
+      "document_pages",
+      "documents",
+      "investigation_reviews",
+      "investigations",
+      "invoices",
+      "reconciliation_matches"
+    ]
+  },
+  "agents": {
+    "langgraph_nodes": [
+      "validate_request",
+      "load_financial_records",
+      "gather_evidence",
+      "assess_evidence_sufficiency",
+      "generate_report",
+      "validate_report_and_citations",
+      "human_review",
+      "finalize"
+    ],
+    "langgraph_node_count": 8,
+    "investigation_tools": [
+      "get_invoice",
+      "get_transaction",
+      "get_reconciliation_for_invoice",
+      "get_reconciliation_match",
+      "calculate_payment_difference",
+      "search_financial_documents",
+      "get_vendor_payment_terms",
+      "build_investigation_query"
+    ],
+    "investigation_tool_count": 8,
+    "chat_intent_handlers": [
+      "DASHBOARD",
+      "DISCREPANCY",
+      "DOCUMENT_QA",
+      "FINANCIAL_QUERY",
+      "GENERAL",
+      "GROUNDED_CALCULATION",
+      "INVESTIGATION_LIST",
+      "INVESTIGATION_RUN",
+      "RECONCILIATION_RUN",
+      "REPORT",
+      "REVIEW_DECISION",
+      "REVIEW_QUEUE",
+      "UNSUPPORTED"
+    ],
+    "chat_intent_handler_count": 13,
+    "max_retries_enforced": 1
+  },
+  "frontend": {
+    "tsx_files": 73,
+    "exported_components": 71
+  },
+  "corpus": {
+    "pdf_documents_ingested": 2,
+    "pdf_pages": 2,
+    "csv_files": 2,
+    "csv_rows_imported": 5,
+    "csv_rows_by_file": {
+      "bank_statement_2026_01.csv": 3,
+      "bank_transactions.csv": 2
+    },
+    "chunks_indexed": 2,
+    "chunk_size_chars_mean": 346.5,
+    "chunk_size_chars_min": 309,
+    "chunk_size_chars_max": 384,
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "embedding_dim": 384,
+    "chunk_size_setting": 800,
+    "chunk_overlap_setting": 100,
+    "index_time_cold_ms": 12325.184300003457,
+    "index_time_warm_ms": 54.9316000106046,
+    "extracted_invoice": {
+      "invoice_number": "INV-2026-0001",
+      "total_amount": "12000.00",
+      "invoice_date": "2026-01-05",
+      "due_date": "2026-02-05"
+    }
+  },
+  "rag": {
+    "questions_total": 20,
+    "answerable_questions": 18,
+    "unanswerable_controls": 2,
+    "top_k": 5,
+    "min_score": 0.35,
+    "retrieval_latency_mean_ms": 29.877090000809403,
+    "retrieval_latency_p95_ms": 40.86454000644153,
+    "e2e_latency_mean_ms": 2337.5118200012366,
+    "e2e_latency_p95_ms": 2630.6448550101777,
+    "answer_generation_model": "openai/gpt-oss-20b",
+    "citation_share_pct": 90.0,
+    "retrieval_hit_rate_pct_of_answerable": 100.0,
+    "abstention_accuracy_pct": 100.0,
+    "llm_failures": [],
+    "per_question": [
+      {
+        "q": "What is the invoice number on the tax invoice?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.6003,
+          0.4363
+        ]
+      },
+      {
+        "q": "What is the total amount on invoice INV-2026-0001?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.6576,
+          0.5579
+        ]
+      },
+      {
+        "q": "What is the invoice date?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.559,
+          0.4607
+        ]
+      },
+      {
+        "q": "What is the due date on the invoice?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.5431,
+          0.4845
+        ]
+      },
+      {
+        "q": "Who is the buyer named on the invoice?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.5168,
+          0.4908
+        ]
+      },
+      {
+        "q": "Who is the vendor named on the invoice?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.5511,
+          0.4981
+        ]
+      },
+      {
+        "q": "What service is billed on the invoice?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.4847,
+          0.4563
+        ]
+      },
+      {
+        "q": "How many units were invoiced?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.5313,
+          0.4506
+        ]
+      },
+      {
+        "q": "What currency is the invoice denominated in?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.533,
+          0.368
+        ]
+      },
+      {
+        "q": "What payment terms are stated on the invoice?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.6032,
+          0.5508
+        ]
+      },
+      {
+        "q": "What early payment discount does the vendor grant?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.5737,
+          0.383
+        ]
+      },
+      {
+        "q": "Under what condition is the discount granted?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.4472,
+          0.2562
+        ]
+      },
+      {
+        "q": "Does the policy allow full settlement below the invoiced total?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.6581,
+          0.4192
+        ]
+      },
+      {
+        "q": "What is the name of the vendor payment policy document?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.5593,
+          0.4277
+        ]
+      },
+      {
+        "q": "Which company issued the vendor payment policy?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.5643,
+          0.3943
+        ]
+      },
+      {
+        "q": "Which invoice number does the vendor policy apply to?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.6135,
+          0.5362
+        ]
+      },
+      {
+        "q": "What kind of discount is described in the policy?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.4406,
+          0.2141
+        ]
+      },
+      {
+        "q": "Within what window must the buyer settle to earn the discount?",
+        "status": "answered",
+        "cited": true,
+        "top_scores": [
+          0.4403,
+          0.2692
+        ]
+      },
+      {
+        "q": "What is the annual revenue of Northwind Traders?",
+        "status": "insufficient_evidence",
+        "cited": false,
+        "top_scores": [
+          0.4659,
+          0.1985
+        ]
+      },
+      {
+        "q": "What bank account number should be used for payment?",
+        "status": "insufficient_evidence",
+        "cited": false,
+        "top_scores": [
+          0.1585,
+          0.155
+        ]
+      }
+    ]
+  },
+  "reconciliation": {
+    "sample_repo_data": {
+      "transactions": 5,
+      "invoices": 1,
+      "counts": {
+        "exact_match": 0,
+        "partial_match": 1,
+        "possible_match": 0,
+        "needs_review": 0,
+        "unmatched": 4,
+        "duplicate_candidate": 0
+      },
+      "runtime_ms": 6.832099999883212
+    },
+    "synthetic_benchmark": {
+      "transactions": 55,
+      "invoices": 40,
+      "ground_truth_links": 35,
+      "counts": {
+        "exact_match": 25,
+        "partial_match": 10,
+        "possible_match": 0,
+        "needs_review": 0,
+        "unmatched": 10,
+        "duplicate_candidate": 15
+      },
+      "runtime_ms": 27.642700006254017,
+      "link_precision_pct": 100.0,
+      "link_recall_pct": 100.0,
+      "per_transaction_status_accuracy_pct": 100.0,
+      "confusion": {
+        "exact_match": {
+          "exact_match": 25
+        },
+        "partial_match": {
+          "partial_match": 10
+        },
+        "ambiguous": {
+          "duplicate_candidate": 10
+        },
+        "unmatched": {
+          "unmatched": 10
+        }
+      }
+    },
+    "scale_tests": {
+      "100_pairs": {
+        "invoices": 100,
+        "transactions": 100,
+        "result_rows": 100,
+        "counts": {
+          "exact_match": 100,
+          "partial_match": 0,
+          "possible_match": 0,
+          "needs_review": 0,
+          "unmatched": 0,
+          "duplicate_candidate": 0
+        },
+        "runtime_ms": 63.80709999939427,
+        "transactions_per_second": 1567.223710228945
+      },
+      "1000_pairs": {
+        "invoices": 1000,
+        "transactions": 1000,
+        "result_rows": 1000,
+        "counts": {
+          "exact_match": 1000,
+          "partial_match": 0,
+          "possible_match": 0,
+          "needs_review": 0,
+          "unmatched": 0,
+          "duplicate_candidate": 0
+        },
+        "runtime_ms": 342949.81109999935,
+        "transactions_per_second": 2.915878556085322
+      }
+    }
+  },
+  "agent_workflow": {
+    "cases_run": 5,
+    "node_invocations_counted": true,
+    "max_retries_enforced": 1,
+    "avg_steps_per_run": 7.0,
+    "min_steps": 7,
+    "max_steps": 7,
+    "runs_with_validation_retry": 0,
+    "evidence_sufficiency_retry_note": "assess_evidence_sufficiency has a fixed edge to generate_report; it escalates to human review rather than retrying. Retries are triggered only by report-validation failures.",
+    "escalated_to_human_review": 3,
+    "escalation_rate_pct": 60.0,
+    "cases": [
+      {
+        "case": "demo_partial_explained",
+        "status": "completed",
+        "llm_used": "openai/gpt-oss-20b",
+        "steps": [
+          "validate_request",
+          "load_financial_records",
+          "gather_evidence",
+          "assess_evidence_sufficiency",
+          "generate_report",
+          "validate_report_and_citations",
+          "finalize"
+        ],
+        "step_count": 7,
+        "validation_retries": 0,
+        "escalated_to_human_review": false,
+        "runtime_ms": 3944.3696000089403
+      },
+      {
+        "case": "exact_match",
+        "status": "completed",
+        "llm_used": "deterministic",
+        "steps": [
+          "validate_request",
+          "load_financial_records",
+          "gather_evidence",
+          "assess_evidence_sufficiency",
+          "generate_report",
+          "validate_report_and_citations",
+          "finalize"
+        ],
+        "step_count": 7,
+        "validation_retries": 0,
+        "escalated_to_human_review": false,
+        "runtime_ms": 71.16089999908581
+      },
+      {
+        "case": "ambiguous_duplicate",
+        "status": "needs_review",
+        "llm_used": "deterministic",
+        "steps": [
+          "validate_request",
+          "load_financial_records",
+          "gather_evidence",
+          "assess_evidence_sufficiency",
+          "generate_report",
+          "validate_report_and_citations",
+          "human_review"
+        ],
+        "step_count": 7,
+        "validation_retries": 0,
+        "escalated_to_human_review": true,
+        "runtime_ms": 71.38280000071973
+      },
+      {
+        "case": "partial_no_policy_evidence",
+        "status": "needs_review",
+        "llm_used": "deterministic",
+        "steps": [
+          "validate_request",
+          "load_financial_records",
+          "gather_evidence",
+          "assess_evidence_sufficiency",
+          "generate_report",
+          "validate_report_and_citations",
+          "human_review"
+        ],
+        "step_count": 7,
+        "validation_retries": 0,
+        "escalated_to_human_review": true,
+        "runtime_ms": 66.83480000356212
+      },
+      {
+        "case": "no_reconciliation_record",
+        "status": "needs_review",
+        "llm_used": "deterministic",
+        "steps": [
+          "validate_request",
+          "load_financial_records",
+          "gather_evidence",
+          "assess_evidence_sufficiency",
+          "generate_report",
+          "validate_report_and_citations",
+          "human_review"
+        ],
+        "step_count": 7,
+        "validation_retries": 0,
+        "escalated_to_human_review": true,
+        "runtime_ms": 67.10709999606479
+      }
+    ]
+  }
+}
