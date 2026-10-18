@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches-ignore: [main]
+
+# Read-only by default: CI only checks out the repository. No secrets are
+# configured or printed; tests run in deterministic, model-free mode against
+# in-memory SQLite, and the live-provider suites skip themselves.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13' # matches backend/Dockerfile (python:3.13-slim)
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Exact command from README/CONTRIBUTING. No Postgres needed: conftest.py
+      # pins DATABASE_URL to in-memory SQLite before the app is imported, and
+      # tests that need FINPILOT_LIVE=1 (real provider/server) skip themselves.
+      - name: Run backend tests
+        run: python -m pytest -q
+        env:
+          DATABASE_URL: 'sqlite:///:memory:'
+          GROQ_API_KEY: '' # deterministic mode: never call an external LLM
+          FINPILOT_LIVE: '0'
+
+  frontend:
+    name: Frontend lint, build, mocked E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22' # matches frontend/Dockerfile (node:22-alpine)
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies (locked)
+        run: npm ci
+
+      - name: Type-check
+        run: npm run lint
+
+      - name: Production build
+        run: npm run build
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      # Mocked suite only (playwright.config.ts ignores tests/integration/**):
+      # every /api request is intercepted, so no backend, database, or API key
+      # is required. GitHub sets CI=true, which makes Playwright start its own
+      # Vite server instead of reusing one.
+      - name: Run mocked Playwright tests
+        run: npm run test:e2e
