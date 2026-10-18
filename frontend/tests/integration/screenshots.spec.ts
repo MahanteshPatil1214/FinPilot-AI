@@ -42,6 +42,25 @@ async function capture(page: Page, name: string) {
   })
 }
 
+test('assistant', async ({ page }) => {
+  await page.goto('/assistant')
+  await expect(page.getByRole('heading', { name: 'Assistant' })).toBeVisible()
+  await page.getByRole('button', { name: 'New conversation' }).click()
+  await expect(
+    page.getByText(
+      'This conversation is empty. Ask a question below to get started.',
+    ),
+  ).toBeVisible()
+  const composer = page.getByPlaceholder(/Ask about a document/)
+  await expect(composer).toBeEnabled()
+  await composer.fill('Which transactions are unmatched?')
+  await page.getByRole('button', { name: 'Send' }).click()
+  await expect(
+    page.getByRole('article').getByText('Completed', { exact: true }),
+  ).toBeVisible({ timeout: 60_000 })
+  await capture(page, 'assistant')
+})
+
 test('dashboard', async ({ page }) => {
   await page.goto('/dashboard')
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()

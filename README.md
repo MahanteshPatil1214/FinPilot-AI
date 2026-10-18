@@ -90,21 +90,21 @@ financial records**. The AI only reads evidence and drafts a report for a human.
 
 ## Screenshots
 
-| Dashboard | Document center |
+| Assistant | Dashboard |
 | --- | --- |
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Document center](docs/screenshots/documents.png) |
+| ![Assistant](docs/screenshots/assistant.png) | ![Dashboard](docs/screenshots/dashboard.png) |
 
-| Reconciliation | Investigation report |
+| Document center | Reconciliation |
 | --- | --- |
-| ![Reconciliation](docs/screenshots/reconciliation.png) | ![Investigation](docs/screenshots/investigation-detail.png) |
+| ![Document center](docs/screenshots/documents.png) | ![Reconciliation](docs/screenshots/reconciliation.png) |
 
-| Investigations queue | Report review |
+| Investigation report | Investigations queue |
 | --- | --- |
-| ![Investigations](docs/screenshots/investigations.png) | ![Review](docs/screenshots/review-detail.png) |
+| ![Investigation](docs/screenshots/investigation-detail.png) | ![Investigations](docs/screenshots/investigations.png) |
 
-| Audit history |
-| --- |
-| ![Audit history](docs/screenshots/audit.png) |
+| Report review | Audit history |
+| --- | --- |
+| ![Review](docs/screenshots/review-detail.png) | ![Audit history](docs/screenshots/audit.png) |
 
 > Screenshots are generated from the live, seeded app by
 > `frontend/tests/integration/screenshots.spec.ts` (see [Testing](#testing)).
