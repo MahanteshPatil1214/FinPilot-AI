@@ -166,17 +166,25 @@ def validate_report(
         # An out-of-policy action means a human must look at this case.
         raw_requires_review = True
     else:
-        raw_requires_review = bool(raw.get("requires_human_review", False))
+        # Fail closed: a missing flag means "a human must look".
+        raw_requires_review = bool(raw.get("requires_human_review", True))
 
     confidence = str(raw.get("confidence") or "low").strip().lower()
     if confidence not in CONFIDENCE_VALUES:
         confidence = "low"
 
     requires_review = raw_requires_review
+    # Low confidence is never allowed to skip review.
+    if confidence == "low":
+        requires_review = True
     # A report with no findings at all is not trustworthy.
     if not findings:
         errors.append("no valid findings")
         requires_review = True
+
+    # Never present "No action needed" alongside a mandatory human review.
+    if requires_review and action == "No action needed":
+        action = DEFAULT_ACTION
 
     report = {
         "summary": summary,

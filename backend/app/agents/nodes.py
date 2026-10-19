@@ -9,6 +9,7 @@ uncertain, conflicting, invalid or unsupported case routes to human review.
 
 import json
 import logging
+import re
 from decimal import Decimal, InvalidOperation
 from typing import Any, Dict, List, Optional
 
@@ -30,6 +31,12 @@ STATUS_NEEDS_REVIEW = "needs_review"
 STATUS_FAILED = "failed"
 
 ENGINE_UNCERTAIN_STATUSES = {"needs_review", "duplicate_candidate"}
+
+# Fail closed: a case may skip human review ONLY when the deterministic engine
+# result is clean. Everything else (unmatched, possible_match, uncertain,
+# unexplained differences, missing match) must go to a person.
+EXACT_MATCH_STATUS = "exact_match"
+PARTIAL_MATCH_STATUS = "partial_match"
 
 MAX_RETRIES = 1
 
@@ -60,20 +67,38 @@ def _money(value: Optional[Decimal]) -> str:
     return str(value) if value is not None else "unknown"
 
 
+# A standalone monetary-looking number: not glued to letters/digits/dots on the
+# left (so "v5" or "INV2026" never count), digits with optional thousands
+# separators and decimals.
+_NUMBER_RE = re.compile(r"(?<![\w.,])(\d[\d,]*(?:\.\d+)?)(?![\w])")
+# Numbers followed by these are durations/rates, not amounts ("10 days", "5%").
+_NON_MONEY_SUFFIX_RE = re.compile(
+    r"^\s*(?:%|percent|per\s*cent|days?|weeks?|months?|years?|hours?)\b|^\s*%",
+    re.IGNORECASE,
+)
+
+
 def _evidence_mentions_amount(
     passages: List[Dict[str, Any]], difference: Optional[Decimal]
 ) -> bool:
+    """True only if a passage states a number EQUAL to the difference.
+
+    Numbers are parsed and compared as Decimals, so 50.00 is never "found" inside
+    1,500.00 or 25,000.00, and durations/percentages ("10 days", "5%") are ignored.
+    """
     if difference is None:
         return False
-    candidates = {
-        str(difference),
-        f"{difference:.2f}",
-        f"{difference.normalize():f}",
-    }
+    target = abs(difference)
     for passage in passages:
-        content = (passage.get("content") or "").replace(",", "")
-        for candidate in candidates:
-            if candidate and candidate in content:
+        content = passage.get("content") or ""
+        for match in _NUMBER_RE.finditer(content):
+            if _NON_MONEY_SUFFIX_RE.match(content[match.end():]):
+                continue
+            try:
+                value = Decimal(match.group(1).replace(",", ""))
+            except InvalidOperation:
+                continue
+            if value == target:
                 return True
     return False
 
@@ -345,7 +370,11 @@ def make_nodes(db: Session, embedder: EmbeddingProvider, llm: LLMClient) -> Dict
                 f"deterministic engine marked this case '{match.match_status}'"
             )
 
-        requires_review = engine_uncertain or match is None or (nonzero and not explained)
+        auto_closable = match is not None and not engine_uncertain and (
+            (match.match_status == EXACT_MATCH_STATUS and not nonzero)
+            or (match.match_status == PARTIAL_MATCH_STATUS and bool(explained))
+        )
+        requires_review = not auto_closable
 
         assessment = {
             "engine_uncertain": engine_uncertain,
@@ -491,6 +520,8 @@ def make_nodes(db: Session, embedder: EmbeddingProvider, llm: LLMClient) -> Dict
                 report.get("requires_human_review") or assessment_requires
             )
             requires = report["requires_human_review"]
+            if requires and report.get("recommended_action") == "No action needed":
+                report["recommended_action"] = report_validator.DEFAULT_ACTION
 
         return {
             "report": report,
