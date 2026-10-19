@@ -170,17 +170,38 @@ def build_matches(invoices, transactions, date_window_days=30):
 
     # ---------------------------------------------------------------- Phase 1
     # For every transaction, gather the invoices it references.
+    #
+    # Performance: the boundary regex for each invoice number is compiled ONCE
+    # here. Calling re.search(pattern_string, ...) per (transaction, invoice)
+    # pair relies on the stdlib's 512-entry compile cache, which thrashes once
+    # there are more than 512 distinct invoice numbers (every pair then
+    # recompiles: ~80x slowdown). A cheap case-insensitive substring test also
+    # rejects almost every pair before the regex runs, so results are unchanged.
+    invoice_probes = []
+    for invoice in invoices:
+        number = _norm(invoice.invoice_number)
+        if not number or len(number) < MIN_REFERENCE_LENGTH:
+            continue
+        pattern = re.compile(
+            r"(?<![A-Za-z0-9])" + re.escape(number) + r"(?![A-Za-z0-9])",
+            re.IGNORECASE,
+        )
+        invoice_probes.append((invoice, number, number.lower(), pattern))
+
     transaction_candidates = {}
     for transaction in transactions:
         per_invoice = {}
         txn_reference = _norm(transaction.transaction_reference)
-        for invoice in invoices:
-            number = _norm(invoice.invoice_number)
-            if not number or len(number) < MIN_REFERENCE_LENGTH:
-                continue
+        description = str(transaction.description) if transaction.description else ""
+        description_lower = description.lower()
+        for invoice, number, number_lower, pattern in invoice_probes:
             if txn_reference is not None and txn_reference == number:
                 per_invoice[invoice.id] = (invoice, METHOD_REFERENCE_EXACT)
-            elif _contains_invoice_number(transaction.description, number):
+            elif (
+                description
+                and number_lower in description_lower
+                and pattern.search(description) is not None
+            ):
                 per_invoice[invoice.id] = (invoice, METHOD_REFERENCE_IN_DESCRIPTION)
         transaction_candidates[transaction.id] = list(per_invoice.values())
 
