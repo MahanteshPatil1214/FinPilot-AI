@@ -1,134 +1,2402 @@
 {
-  "questions": 18,
-  "corpus_chunks": 2,
-  "hit_at_1_pct": 94.44444444444444,
-  "hit_at_5_pct": 100.0,
-  "per_question": [
+  "corpus_documents": 8,
+  "corpus_chunks": 24,
+  "answerable_questions": 29,
+  "unanswerable_questions": 8,
+  "hit_at_1_pct": 58.62,
+  "hit_at_5_pct": 93.1,
+  "mrr": 0.7339,
+  "rag_min_score": 0.35,
+  "abstention_passed": 4,
+  "abstention_total": 8,
+  "abstention_accuracy_pct": 50.0,
+  "answerable_results": [
     {
-      "q": "What is the invoice number on the tax invoice?",
-      "key": "inv-2026-0001",
-      "hit_at_1": true,
-      "hit_at_5": true,
-      "top1_score": 0.6003
-    },
-    {
-      "q": "What is the total amount on invoice INV-2026-0001?",
-      "key": "12,000.00",
-      "hit_at_1": true,
-      "hit_at_5": true,
-      "top1_score": 0.6576
-    },
-    {
-      "q": "What is the invoice date?",
-      "key": "05/01/2026",
-      "hit_at_1": true,
-      "hit_at_5": true,
-      "top1_score": 0.559
-    },
-    {
-      "q": "What is the due date on the invoice?",
-      "key": "05/02/2026",
-      "hit_at_1": true,
-      "hit_at_5": true,
-      "top1_score": 0.5431
-    },
-    {
-      "q": "Who is the buyer named on the invoice?",
-      "key": "northwind traders",
-      "hit_at_1": true,
-      "hit_at_5": true,
-      "top1_score": 0.5168
-    },
-    {
-      "q": "Who is the vendor named on the invoice?",
-      "key": "acme supplies",
-      "hit_at_1": true,
-      "hit_at_5": true,
-      "top1_score": 0.5511
-    },
-    {
-      "q": "What service is billed on the invoice?",
-      "key": "consulting services",
-      "hit_at_1": true,
-      "hit_at_5": true,
-      "top1_score": 0.4847
-    },
-    {
-      "q": "How many units were invoiced?",
-      "key": "10 units",
-      "hit_at_1": true,
-      "hit_at_5": true,
-      "top1_score": 0.5313
-    },
-    {
-      "q": "What currency is the invoice denominated in?",
-      "key": "inr",
-      "hit_at_1": true,
-      "hit_at_5": true,
-      "top1_score": 0.533
-    },
-    {
-      "q": "What payment terms are stated on the invoice?",
-      "key": "net 30",
+      "question": "What is the invoice number on the tax invoice?",
+      "expected_evidence": "inv-2026-0001",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "7adc21ff-2f5a-46ad-8553-f6e37205b3c2",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 2,
+          "page_number": 3
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "e4f60fec-0ae2-4ae8-91ec-4678af8b710a",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 1,
+          "page_number": 2
+        },
+        {
+          "chunk_id": "11e929bd-b08d-415a-9ce1-fe1e56111db0",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 2,
+          "page_number": 3
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 2,
       "hit_at_1": false,
       "hit_at_5": true,
-      "top1_score": 0.6032
+      "top_score": 0.6792,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.6792,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.6197,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.5319,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        },
+        {
+          "chunk_id": "6f3f27a9-c6b8-42e0-b7d8-4c8a9a1b238d",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.462,
+          "content": "NORTHWIND OFFICE SOLUTIONS - BILLING NOTES\nCustomer: Acme Supplies\nInvoice reference: INV-2026-0002\nPayment terms: Net 15\nPayment channel: Bank transfer\nInvoice currency: INR\nPurchase category: Office equipment\nThis is synthetic demonstration data."
+        },
+        {
+          "chunk_id": "11e929bd-b08d-415a-9ce1-fe1e56111db0",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.4591,
+          "content": "ACME SUPPLIES - BILLING NOTES\nInvoice reference: INV-2026-0001\nCustomer account: Northwind Traders\nBilling department: Professional Services\nPayment method: Bank transfer\nInvoice status at issue: Unpaid\nRemittance reference should include invoice number.\nThis page contains synthetic demonstration information."
+        }
+      ]
     },
     {
-      "q": "What early payment discount does the vendor grant?",
-      "key": "300.00",
-      "hit_at_1": true,
+      "question": "What is the total amount on invoice INV-2026-0001?",
+      "expected_evidence": "12,000.00",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 2,
+      "hit_at_1": false,
       "hit_at_5": true,
-      "top1_score": 0.5737
+      "top_score": 0.6801,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.6801,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.6602,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.6142,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        },
+        {
+          "chunk_id": "e4f60fec-0ae2-4ae8-91ec-4678af8b710a",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.5958,
+          "content": "ACME SUPPLIES - SERVICE DETAILS\nInvoice reference: INV-2026-0001\nService category: Business consulting\nQuantity supplied: 10 units\nUnit price: 1,200.00 INR\nService period: January 2026\nService status: Completed\nBilling frequency: One-time\nAll amounts are stated in Indian Rupees."
+        },
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5566,
+          "content": "SYNTHETIC BANK STATEMENT\nAccount: Northwind Traders\nTransaction TXN-2026-0001\nDate: 2026-01-06\nDescription: Payment for INV-2026-0001\nAmount: 11,700.00 INR\nTransaction TXN-2026-0002\nDate: 2026-01-15\nDescription: Office rent January\nAmount: 25,000.00 INR"
+        }
+      ]
     },
     {
-      "q": "Under what condition is the discount granted?",
-      "key": "early-settlement",
+      "question": "What is the invoice date?",
+      "expected_evidence": "05/01/2026",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 1,
       "hit_at_1": true,
       "hit_at_5": true,
-      "top1_score": 0.4472
+      "top_score": 0.5501,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5501,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.54,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4787,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.4675,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        },
+        {
+          "chunk_id": "e4f60fec-0ae2-4ae8-91ec-4678af8b710a",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.4567,
+          "content": "ACME SUPPLIES - SERVICE DETAILS\nInvoice reference: INV-2026-0001\nService category: Business consulting\nQuantity supplied: 10 units\nUnit price: 1,200.00 INR\nService period: January 2026\nService status: Completed\nBilling frequency: One-time\nAll amounts are stated in Indian Rupees."
+        }
+      ]
     },
     {
-      "q": "Does the policy allow full settlement below the invoiced total?",
-      "key": "closing the invoice",
+      "question": "What is the due date on the invoice?",
+      "expected_evidence": "05/02/2026",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 1,
       "hit_at_1": true,
       "hit_at_5": true,
-      "top1_score": 0.6581
+      "top_score": 0.5149,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5149,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4905,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4689,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.4377,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        },
+        {
+          "chunk_id": "0468f5bd-0d0f-45de-a0c9-067ba7d22c41",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4351,
+          "content": "PRIME PROPERTIES\nVendor Payment Policy\nRent invoices are payable within 7 calendar days.\nLate rent payments may incur a 2 percent fee."
+        }
+      ]
     },
     {
-      "q": "What is the name of the vendor payment policy document?",
-      "key": "vendor payment policy",
+      "question": "Who is the buyer named on the invoice?",
+      "expected_evidence": "northwind traders",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "c07f124f-6a22-4a49-9840-d8d9bc81f34a",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 1,
+          "page_number": 2
+        },
+        {
+          "chunk_id": "7adc21ff-2f5a-46ad-8553-f6e37205b3c2",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 2,
+          "page_number": 3
+        },
+        {
+          "chunk_id": "07ddbd9c-1bbd-4505-8902-ba867080810e",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "d1540b29-4617-49c3-ad33-57f9b18dd08f",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 1,
+          "page_number": 2
+        },
+        {
+          "chunk_id": "2fe86f80-d883-45dc-813e-a4088e6fe8fc",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 2,
+          "page_number": 3
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "11e929bd-b08d-415a-9ce1-fe1e56111db0",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 2,
+          "page_number": 3
+        }
+      ],
+      "matching_rank": 1,
       "hit_at_1": true,
       "hit_at_5": true,
-      "top1_score": 0.5593
+      "top_score": 0.5062,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5062,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4994,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.4764,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4701,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "11e929bd-b08d-415a-9ce1-fe1e56111db0",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.4666,
+          "content": "ACME SUPPLIES - BILLING NOTES\nInvoice reference: INV-2026-0001\nCustomer account: Northwind Traders\nBilling department: Professional Services\nPayment method: Bank transfer\nInvoice status at issue: Unpaid\nRemittance reference should include invoice number.\nThis page contains synthetic demonstration information."
+        }
+      ]
     },
     {
-      "q": "Which company issued the vendor payment policy?",
-      "key": "acme supplies private limited",
+      "question": "Who is the vendor named on the invoice?",
+      "expected_evidence": "acme supplies",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "e4f60fec-0ae2-4ae8-91ec-4678af8b710a",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 1,
+          "page_number": 2
+        },
+        {
+          "chunk_id": "11e929bd-b08d-415a-9ce1-fe1e56111db0",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 2,
+          "page_number": 3
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "6f3f27a9-c6b8-42e0-b7d8-4c8a9a1b238d",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 2,
+          "page_number": 3
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "2df85be2-9c75-4fbc-8bdf-74b6ad6a3c81",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 1,
+          "page_number": 2
+        },
+        {
+          "chunk_id": "7c4836e5-81c7-46e1-b1b5-3ad7878b2edd",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 2,
+          "page_number": 3
+        }
+      ],
+      "matching_rank": 1,
       "hit_at_1": true,
       "hit_at_5": true,
-      "top1_score": 0.5643
+      "top_score": 0.5427,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5427,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5328,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "6f3f27a9-c6b8-42e0-b7d8-4c8a9a1b238d",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5277,
+          "content": "NORTHWIND OFFICE SOLUTIONS - BILLING NOTES\nCustomer: Acme Supplies\nInvoice reference: INV-2026-0002\nPayment terms: Net 15\nPayment channel: Bank transfer\nInvoice currency: INR\nPurchase category: Office equipment\nThis is synthetic demonstration data."
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.5223,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        },
+        {
+          "chunk_id": "11e929bd-b08d-415a-9ce1-fe1e56111db0",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5072,
+          "content": "ACME SUPPLIES - BILLING NOTES\nInvoice reference: INV-2026-0001\nCustomer account: Northwind Traders\nBilling department: Professional Services\nPayment method: Bank transfer\nInvoice status at issue: Unpaid\nRemittance reference should include invoice number.\nThis page contains synthetic demonstration information."
+        }
+      ]
     },
     {
-      "q": "Which invoice number does the vendor policy apply to?",
-      "key": "inv-2026-0001",
-      "hit_at_1": true,
+      "question": "What service is billed on the invoice?",
+      "expected_evidence": "consulting services",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 5,
+      "hit_at_1": false,
       "hit_at_5": true,
-      "top1_score": 0.6135
+      "top_score": 0.5546,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "6f3f27a9-c6b8-42e0-b7d8-4c8a9a1b238d",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5546,
+          "content": "NORTHWIND OFFICE SOLUTIONS - BILLING NOTES\nCustomer: Acme Supplies\nInvoice reference: INV-2026-0002\nPayment terms: Net 15\nPayment channel: Bank transfer\nInvoice currency: INR\nPurchase category: Office equipment\nThis is synthetic demonstration data."
+        },
+        {
+          "chunk_id": "11e929bd-b08d-415a-9ce1-fe1e56111db0",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5257,
+          "content": "ACME SUPPLIES - BILLING NOTES\nInvoice reference: INV-2026-0001\nCustomer account: Northwind Traders\nBilling department: Professional Services\nPayment method: Bank transfer\nInvoice status at issue: Unpaid\nRemittance reference should include invoice number.\nThis page contains synthetic demonstration information."
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4999,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "e4f60fec-0ae2-4ae8-91ec-4678af8b710a",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.4969,
+          "content": "ACME SUPPLIES - SERVICE DETAILS\nInvoice reference: INV-2026-0001\nService category: Business consulting\nQuantity supplied: 10 units\nUnit price: 1,200.00 INR\nService period: January 2026\nService status: Completed\nBilling frequency: One-time\nAll amounts are stated in Indian Rupees."
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4892,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        }
+      ]
     },
     {
-      "q": "What kind of discount is described in the policy?",
-      "key": "early payment discount",
+      "question": "How many units were invoiced?",
+      "expected_evidence": "10 units",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "e4f60fec-0ae2-4ae8-91ec-4678af8b710a",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 1,
+          "page_number": 2
+        }
+      ],
+      "matching_rank": 1,
       "hit_at_1": true,
       "hit_at_5": true,
-      "top1_score": 0.4406
+      "top_score": 0.5512,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "e4f60fec-0ae2-4ae8-91ec-4678af8b710a",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.5512,
+          "content": "ACME SUPPLIES - SERVICE DETAILS\nInvoice reference: INV-2026-0001\nService category: Business consulting\nQuantity supplied: 10 units\nUnit price: 1,200.00 INR\nService period: January 2026\nService status: Completed\nBilling frequency: One-time\nAll amounts are stated in Indian Rupees."
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.541,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5242,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.4932,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        },
+        {
+          "chunk_id": "6f3f27a9-c6b8-42e0-b7d8-4c8a9a1b238d",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.4409,
+          "content": "NORTHWIND OFFICE SOLUTIONS - BILLING NOTES\nCustomer: Acme Supplies\nInvoice reference: INV-2026-0002\nPayment terms: Net 15\nPayment channel: Bank transfer\nInvoice currency: INR\nPurchase category: Office equipment\nThis is synthetic demonstration data."
+        }
+      ]
     },
     {
-      "q": "Within what window must the buyer settle to earn the discount?",
-      "key": "settles in full",
+      "question": "What currency is the invoice denominated in?",
+      "expected_evidence": "inr",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "c07f124f-6a22-4a49-9840-d8d9bc81f34a",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 1,
+          "page_number": 2
+        },
+        {
+          "chunk_id": "07ddbd9c-1bbd-4505-8902-ba867080810e",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "d1540b29-4617-49c3-ad33-57f9b18dd08f",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 1,
+          "page_number": 2
+        },
+        {
+          "chunk_id": "2fe86f80-d883-45dc-813e-a4088e6fe8fc",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 2,
+          "page_number": 3
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "e4f60fec-0ae2-4ae8-91ec-4678af8b710a",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 1,
+          "page_number": 2
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2
+        },
+        {
+          "chunk_id": "6f3f27a9-c6b8-42e0-b7d8-4c8a9a1b238d",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 2,
+          "page_number": 3
+        },
+        {
+          "chunk_id": "a173d76e-c74b-4590-9673-62a329bbd0e4",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "75b09023-d02f-4003-bff5-572a6f9e7d0e",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 1,
+          "page_number": 2
+        },
+        {
+          "chunk_id": "141e6f9d-1645-4e13-a1b1-4a8510b0d9e6",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "d596c237-4168-417e-8f5f-9e5cc879b33a",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 1,
+          "page_number": 2
+        },
+        {
+          "chunk_id": "7c4836e5-81c7-46e1-b1b5-3ad7878b2edd",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 2,
+          "page_number": 3
+        },
+        {
+          "chunk_id": "3f508a1b-6795-4559-a692-74e6cebc7100",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 2,
+          "page_number": 3
+        }
+      ],
+      "matching_rank": 1,
       "hit_at_1": true,
       "hit_at_5": true,
-      "top1_score": 0.4403
+      "top_score": 0.5416,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5416,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5343,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        },
+        {
+          "chunk_id": "6f3f27a9-c6b8-42e0-b7d8-4c8a9a1b238d",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.4587,
+          "content": "NORTHWIND OFFICE SOLUTIONS - BILLING NOTES\nCustomer: Acme Supplies\nInvoice reference: INV-2026-0002\nPayment terms: Net 15\nPayment channel: Bank transfer\nInvoice currency: INR\nPurchase category: Office equipment\nThis is synthetic demonstration data."
+        },
+        {
+          "chunk_id": "11e929bd-b08d-415a-9ce1-fe1e56111db0",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.44,
+          "content": "ACME SUPPLIES - BILLING NOTES\nInvoice reference: INV-2026-0001\nCustomer account: Northwind Traders\nBilling department: Professional Services\nPayment method: Bank transfer\nInvoice status at issue: Unpaid\nRemittance reference should include invoice number.\nThis page contains synthetic demonstration information."
+        },
+        {
+          "chunk_id": "7adc21ff-2f5a-46ad-8553-f6e37205b3c2",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.4137,
+          "content": "NORTHWIND TRADERS - TRANSACTION NOTES\nStatement period: January 2026\nTransaction channel: Electronic transfer\nReconciliation status: Demonstration dataset\nThe invoice settlement is linked to INV-2026-0001.\nThe rent transaction is linked to Prime Properties.\nNo December 2025 electricity transaction is listed."
+        }
+      ]
+    },
+    {
+      "question": "What payment terms are stated on the invoice?",
+      "expected_evidence": "net 30",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 4,
+      "hit_at_1": false,
+      "hit_at_5": true,
+      "top_score": 0.5755,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5755,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "2df85be2-9c75-4fbc-8bdf-74b6ad6a3c81",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.5691,
+          "content": "ACME SUPPLIES - PAYMENT PROCEDURE\nPayments must reference the applicable invoice number.\nAccepted payment method: Bank transfer.\nPayment confirmation is recorded against the vendor account.\nPartial payments do not qualify for the early settlement discount.\nThe buyer should retain the payment confirmation."
+        },
+        {
+          "chunk_id": "6f3f27a9-c6b8-42e0-b7d8-4c8a9a1b238d",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5475,
+          "content": "NORTHWIND OFFICE SOLUTIONS - BILLING NOTES\nCustomer: Acme Supplies\nInvoice reference: INV-2026-0002\nPayment terms: Net 15\nPayment channel: Bank transfer\nInvoice currency: INR\nPurchase category: Office equipment\nThis is synthetic demonstration data."
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5444,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5362,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        }
+      ]
+    },
+    {
+      "question": "What early payment discount does the vendor grant?",
+      "expected_evidence": "300.00",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 1,
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top_score": 0.6107,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.6107,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "7c4836e5-81c7-46e1-b1b5-3ad7878b2edd",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.4383,
+          "content": "ACME SUPPLIES - POLICY ADMINISTRATION\nPolicy category: Vendor settlement\nPolicy reference: ACME-PAY-2026\nPolicy review date: 01/01/2026\nCurrency: INR\nThe finance team records approved discounts separately.\nThis synthetic policy is for retrieval evaluation only."
+        },
+        {
+          "chunk_id": "2df85be2-9c75-4fbc-8bdf-74b6ad6a3c81",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.428,
+          "content": "ACME SUPPLIES - PAYMENT PROCEDURE\nPayments must reference the applicable invoice number.\nAccepted payment method: Bank transfer.\nPayment confirmation is recorded against the vendor account.\nPartial payments do not qualify for the early settlement discount.\nThe buyer should retain the payment confirmation."
+        },
+        {
+          "chunk_id": "cb80d11a-765a-4d6b-9bc7-301c538b9420",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.4172,
+          "content": "LOAN AGREEMENT - ACCOUNT NOTES\nLoan reference: LN-2026-0042\nAccount category: Demonstration business loan\nAgreement status: Synthetic sample\nThe agreement records principal and interest terms.\nNo prepayment penalty amount is specified in this sample."
+        },
+        {
+          "chunk_id": "0468f5bd-0d0f-45de-a0c9-067ba7d22c41",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4024,
+          "content": "PRIME PROPERTIES\nVendor Payment Policy\nRent invoices are payable within 7 calendar days.\nLate rent payments may incur a 2 percent fee."
+        }
+      ]
+    },
+    {
+      "question": "Under what condition is the discount granted?",
+      "expected_evidence": "early-settlement",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 1,
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top_score": 0.4554,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4554,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "7c4836e5-81c7-46e1-b1b5-3ad7878b2edd",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.3946,
+          "content": "ACME SUPPLIES - POLICY ADMINISTRATION\nPolicy category: Vendor settlement\nPolicy reference: ACME-PAY-2026\nPolicy review date: 01/01/2026\nCurrency: INR\nThe finance team records approved discounts separately.\nThis synthetic policy is for retrieval evaluation only."
+        },
+        {
+          "chunk_id": "cb80d11a-765a-4d6b-9bc7-301c538b9420",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.3563,
+          "content": "LOAN AGREEMENT - ACCOUNT NOTES\nLoan reference: LN-2026-0042\nAccount category: Demonstration business loan\nAgreement status: Synthetic sample\nThe agreement records principal and interest terms.\nNo prepayment penalty amount is specified in this sample."
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.2532,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.2414,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        }
+      ]
+    },
+    {
+      "question": "Does the policy allow full settlement below the invoiced total?",
+      "expected_evidence": "closing the invoice",
+      "expected_evidence_chunks": [],
+      "matching_rank": null,
+      "hit_at_1": false,
+      "hit_at_5": false,
+      "top_score": 0.5573,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5573,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "0468f5bd-0d0f-45de-a0c9-067ba7d22c41",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4832,
+          "content": "PRIME PROPERTIES\nVendor Payment Policy\nRent invoices are payable within 7 calendar days.\nLate rent payments may incur a 2 percent fee."
+        },
+        {
+          "chunk_id": "7c4836e5-81c7-46e1-b1b5-3ad7878b2edd",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.4123,
+          "content": "ACME SUPPLIES - POLICY ADMINISTRATION\nPolicy category: Vendor settlement\nPolicy reference: ACME-PAY-2026\nPolicy review date: 01/01/2026\nCurrency: INR\nThe finance team records approved discounts separately.\nThis synthetic policy is for retrieval evaluation only."
+        },
+        {
+          "chunk_id": "2df85be2-9c75-4fbc-8bdf-74b6ad6a3c81",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.4105,
+          "content": "ACME SUPPLIES - PAYMENT PROCEDURE\nPayments must reference the applicable invoice number.\nAccepted payment method: Bank transfer.\nPayment confirmation is recorded against the vendor account.\nPartial payments do not qualify for the early settlement discount.\nThe buyer should retain the payment confirmation."
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4055,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        }
+      ]
+    },
+    {
+      "question": "What is the name of the vendor payment policy document?",
+      "expected_evidence": "vendor payment policy",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "0468f5bd-0d0f-45de-a0c9-067ba7d22c41",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 3,
+      "hit_at_1": false,
+      "hit_at_5": true,
+      "top_score": 0.5755,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "7c4836e5-81c7-46e1-b1b5-3ad7878b2edd",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5755,
+          "content": "ACME SUPPLIES - POLICY ADMINISTRATION\nPolicy category: Vendor settlement\nPolicy reference: ACME-PAY-2026\nPolicy review date: 01/01/2026\nCurrency: INR\nThe finance team records approved discounts separately.\nThis synthetic policy is for retrieval evaluation only."
+        },
+        {
+          "chunk_id": "2df85be2-9c75-4fbc-8bdf-74b6ad6a3c81",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.5379,
+          "content": "ACME SUPPLIES - PAYMENT PROCEDURE\nPayments must reference the applicable invoice number.\nAccepted payment method: Bank transfer.\nPayment confirmation is recorded against the vendor account.\nPartial payments do not qualify for the early settlement discount.\nThe buyer should retain the payment confirmation."
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.523,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "cb80d11a-765a-4d6b-9bc7-301c538b9420",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5015,
+          "content": "LOAN AGREEMENT - ACCOUNT NOTES\nLoan reference: LN-2026-0042\nAccount category: Demonstration business loan\nAgreement status: Synthetic sample\nThe agreement records principal and interest terms.\nNo prepayment penalty amount is specified in this sample."
+        },
+        {
+          "chunk_id": "6f3f27a9-c6b8-42e0-b7d8-4c8a9a1b238d",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.4604,
+          "content": "NORTHWIND OFFICE SOLUTIONS - BILLING NOTES\nCustomer: Acme Supplies\nInvoice reference: INV-2026-0002\nPayment terms: Net 15\nPayment channel: Bank transfer\nInvoice currency: INR\nPurchase category: Office equipment\nThis is synthetic demonstration data."
+        }
+      ]
+    },
+    {
+      "question": "Which company issued the vendor payment policy?",
+      "expected_evidence": "acme supplies private limited",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 2,
+      "hit_at_1": false,
+      "hit_at_5": true,
+      "top_score": 0.5513,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "7c4836e5-81c7-46e1-b1b5-3ad7878b2edd",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5513,
+          "content": "ACME SUPPLIES - POLICY ADMINISTRATION\nPolicy category: Vendor settlement\nPolicy reference: ACME-PAY-2026\nPolicy review date: 01/01/2026\nCurrency: INR\nThe finance team records approved discounts separately.\nThis synthetic policy is for retrieval evaluation only."
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5389,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "2df85be2-9c75-4fbc-8bdf-74b6ad6a3c81",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.5154,
+          "content": "ACME SUPPLIES - PAYMENT PROCEDURE\nPayments must reference the applicable invoice number.\nAccepted payment method: Bank transfer.\nPayment confirmation is recorded against the vendor account.\nPartial payments do not qualify for the early settlement discount.\nThe buyer should retain the payment confirmation."
+        },
+        {
+          "chunk_id": "0468f5bd-0d0f-45de-a0c9-067ba7d22c41",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.3931,
+          "content": "PRIME PROPERTIES\nVendor Payment Policy\nRent invoices are payable within 7 calendar days.\nLate rent payments may incur a 2 percent fee."
+        },
+        {
+          "chunk_id": "cb80d11a-765a-4d6b-9bc7-301c538b9420",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.3891,
+          "content": "LOAN AGREEMENT - ACCOUNT NOTES\nLoan reference: LN-2026-0042\nAccount category: Demonstration business loan\nAgreement status: Synthetic sample\nThe agreement records principal and interest terms.\nNo prepayment penalty amount is specified in this sample."
+        }
+      ]
+    },
+    {
+      "question": "Which invoice number does the vendor policy apply to?",
+      "expected_evidence": "inv-2026-0001",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "7adc21ff-2f5a-46ad-8553-f6e37205b3c2",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 2,
+          "page_number": 3
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "e4f60fec-0ae2-4ae8-91ec-4678af8b710a",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 1,
+          "page_number": 2
+        },
+        {
+          "chunk_id": "11e929bd-b08d-415a-9ce1-fe1e56111db0",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 2,
+          "page_number": 3
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 1,
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top_score": 0.6043,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.6043,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5329,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5291,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.5216,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        },
+        {
+          "chunk_id": "11e929bd-b08d-415a-9ce1-fe1e56111db0",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5176,
+          "content": "ACME SUPPLIES - BILLING NOTES\nInvoice reference: INV-2026-0001\nCustomer account: Northwind Traders\nBilling department: Professional Services\nPayment method: Bank transfer\nInvoice status at issue: Unpaid\nRemittance reference should include invoice number.\nThis page contains synthetic demonstration information."
+        }
+      ]
+    },
+    {
+      "question": "What kind of discount is described in the policy?",
+      "expected_evidence": "early payment discount",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 2,
+      "hit_at_1": false,
+      "hit_at_5": true,
+      "top_score": 0.511,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "7c4836e5-81c7-46e1-b1b5-3ad7878b2edd",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.511,
+          "content": "ACME SUPPLIES - POLICY ADMINISTRATION\nPolicy category: Vendor settlement\nPolicy reference: ACME-PAY-2026\nPolicy review date: 01/01/2026\nCurrency: INR\nThe finance team records approved discounts separately.\nThis synthetic policy is for retrieval evaluation only."
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4432,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "cb80d11a-765a-4d6b-9bc7-301c538b9420",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.3005,
+          "content": "LOAN AGREEMENT - ACCOUNT NOTES\nLoan reference: LN-2026-0042\nAccount category: Demonstration business loan\nAgreement status: Synthetic sample\nThe agreement records principal and interest terms.\nNo prepayment penalty amount is specified in this sample."
+        },
+        {
+          "chunk_id": "3f508a1b-6795-4559-a692-74e6cebc7100",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.2876,
+          "content": "PRIME PROPERTIES - POLICY DETAILS\nPolicy reference: PRIME-RENT-2026\nPolicy review date: 01/01/2026\nLate payment fee: 2 percent\nPayment deadline: 7 calendar days\nCurrency used for rent records: INR\nThis policy contains synthetic demonstration information."
+        },
+        {
+          "chunk_id": "2fe86f80-d883-45dc-813e-a4088e6fe8fc",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.2279,
+          "content": "NORTHWIND TRADERS - EXPENSE NOTES\nReport reference: EXP-Q1-2026\nReporting currency: INR\nTravel expenses relate to business trips.\nOffice supplies relate to administrative purchases.\nSoftware subscriptions relate to business applications.\nThis is synthetic quarterly expense data."
+        }
+      ]
+    },
+    {
+      "question": "Within what window must the buyer settle to earn the discount?",
+      "expected_evidence": "settles in full",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 1,
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top_score": 0.4233,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4233,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "cb80d11a-765a-4d6b-9bc7-301c538b9420",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.3095,
+          "content": "LOAN AGREEMENT - ACCOUNT NOTES\nLoan reference: LN-2026-0042\nAccount category: Demonstration business loan\nAgreement status: Synthetic sample\nThe agreement records principal and interest terms.\nNo prepayment penalty amount is specified in this sample."
+        },
+        {
+          "chunk_id": "7adc21ff-2f5a-46ad-8553-f6e37205b3c2",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.2918,
+          "content": "NORTHWIND TRADERS - TRANSACTION NOTES\nStatement period: January 2026\nTransaction channel: Electronic transfer\nReconciliation status: Demonstration dataset\nThe invoice settlement is linked to INV-2026-0001.\nThe rent transaction is linked to Prime Properties.\nNo December 2025 electricity transaction is listed."
+        },
+        {
+          "chunk_id": "2df85be2-9c75-4fbc-8bdf-74b6ad6a3c81",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.2895,
+          "content": "ACME SUPPLIES - PAYMENT PROCEDURE\nPayments must reference the applicable invoice number.\nAccepted payment method: Bank transfer.\nPayment confirmation is recorded against the vendor account.\nPartial payments do not qualify for the early settlement discount.\nThe buyer should retain the payment confirmation."
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.2874,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        }
+      ]
+    },
+    {
+      "question": "What is the principal of the synthetic loan?",
+      "expected_evidence": "500,000.00",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "a173d76e-c74b-4590-9673-62a329bbd0e4",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "75b09023-d02f-4003-bff5-572a6f9e7d0e",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 1,
+          "page_number": 2
+        }
+      ],
+      "matching_rank": 1,
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top_score": 0.7006,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "a173d76e-c74b-4590-9673-62a329bbd0e4",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.7006,
+          "content": "SYNTHETIC LOAN AGREEMENT\nLoan reference: LN-2026-0042\nPrincipal: 500,000.00 INR\nAnnual interest rate: 9.5 percent\nRepayment term: 24 months"
+        },
+        {
+          "chunk_id": "cb80d11a-765a-4d6b-9bc7-301c538b9420",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.4923,
+          "content": "LOAN AGREEMENT - ACCOUNT NOTES\nLoan reference: LN-2026-0042\nAccount category: Demonstration business loan\nAgreement status: Synthetic sample\nThe agreement records principal and interest terms.\nNo prepayment penalty amount is specified in this sample."
+        },
+        {
+          "chunk_id": "75b09023-d02f-4003-bff5-572a6f9e7d0e",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.4171,
+          "content": "LOAN AGREEMENT - REPAYMENT DETAILS\nLoan reference: LN-2026-0042\nPrincipal amount: 500,000.00 INR\nAnnual interest rate: 9.5 percent\nRepayment duration: 24 months\nCurrency: INR\nRepayment frequency: Monthly"
+        },
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.3745,
+          "content": "SYNTHETIC BANK STATEMENT\nAccount: Northwind Traders\nTransaction TXN-2026-0001\nDate: 2026-01-06\nDescription: Payment for INV-2026-0001\nAmount: 11,700.00 INR\nTransaction TXN-2026-0002\nDate: 2026-01-15\nDescription: Office rent January\nAmount: 25,000.00 INR"
+        },
+        {
+          "chunk_id": "67c3a461-0b57-491b-a344-9ac09f39476f",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.3057,
+          "content": "PRIME PROPERTIES - RENTAL PROCEDURE\nVendor category: Commercial property\nPayment frequency: Monthly\nAccepted payment method: Bank transfer\nRent payment reference should identify the rental month.\nThe finance team records each monthly settlement."
+        }
+      ]
+    },
+    {
+      "question": "What is the annual interest rate in the loan agreement?",
+      "expected_evidence": "9.5 percent",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "a173d76e-c74b-4590-9673-62a329bbd0e4",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "75b09023-d02f-4003-bff5-572a6f9e7d0e",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 1,
+          "page_number": 2
+        }
+      ],
+      "matching_rank": 1,
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top_score": 0.6986,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "75b09023-d02f-4003-bff5-572a6f9e7d0e",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.6986,
+          "content": "LOAN AGREEMENT - REPAYMENT DETAILS\nLoan reference: LN-2026-0042\nPrincipal amount: 500,000.00 INR\nAnnual interest rate: 9.5 percent\nRepayment duration: 24 months\nCurrency: INR\nRepayment frequency: Monthly"
+        },
+        {
+          "chunk_id": "a173d76e-c74b-4590-9673-62a329bbd0e4",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.6939,
+          "content": "SYNTHETIC LOAN AGREEMENT\nLoan reference: LN-2026-0042\nPrincipal: 500,000.00 INR\nAnnual interest rate: 9.5 percent\nRepayment term: 24 months"
+        },
+        {
+          "chunk_id": "cb80d11a-765a-4d6b-9bc7-301c538b9420",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5571,
+          "content": "LOAN AGREEMENT - ACCOUNT NOTES\nLoan reference: LN-2026-0042\nAccount category: Demonstration business loan\nAgreement status: Synthetic sample\nThe agreement records principal and interest terms.\nNo prepayment penalty amount is specified in this sample."
+        },
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.402,
+          "content": "SYNTHETIC BANK STATEMENT\nAccount: Northwind Traders\nTransaction TXN-2026-0001\nDate: 2026-01-06\nDescription: Payment for INV-2026-0001\nAmount: 11,700.00 INR\nTransaction TXN-2026-0002\nDate: 2026-01-15\nDescription: Office rent January\nAmount: 25,000.00 INR"
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.3254,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        }
+      ]
+    },
+    {
+      "question": "How many employees are listed in the payroll summary?",
+      "expected_evidence": "12",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "141e6f9d-1645-4e13-a1b1-4a8510b0d9e6",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "d596c237-4168-417e-8f5f-9e5cc879b33a",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 1,
+          "page_number": 2
+        }
+      ],
+      "matching_rank": 1,
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top_score": 0.645,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "141e6f9d-1645-4e13-a1b1-4a8510b0d9e6",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.645,
+          "content": "SYNTHETIC PAYROLL SUMMARY\nJanuary 2026\nEmployees: 12\nGross payroll: 480,000.00 INR\nPayroll date: 2026-01-31"
+        },
+        {
+          "chunk_id": "d596c237-4168-417e-8f5f-9e5cc879b33a",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.6105,
+          "content": "PAYROLL SUMMARY - COMPENSATION\nPayroll month: January 2026\nEmployee count: 12\nGross payroll: 480,000.00 INR\nCurrency: INR\nPayroll category: Monthly compensation"
+        },
+        {
+          "chunk_id": "aca28933-d9cd-431b-8be2-71ca1fb90dce",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5257,
+          "content": "PAYROLL SUMMARY - PROCESSING NOTES\nPayroll reference: PAY-JAN-2026\nProcessing date: 2026-01-31\nPayroll status: Synthetic demonstration record\nThe gross payroll value is recorded before deductions.\nThis sample contains no individual employee records."
+        },
+        {
+          "chunk_id": "c07f124f-6a22-4a49-9840-d8d9bc81f34a",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.3221,
+          "content": "NORTHWIND TRADERS - STATEMENT SUMMARY\nStatement month: January 2026\nAccount type: Business current account\nCurrency: INR\nTransaction count on this page: 2\nReference TXN-2026-0001 relates to invoice settlement.\nReference TXN-2026-0002 relates to office rent."
+        },
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.2615,
+          "content": "SYNTHETIC BANK STATEMENT\nAccount: Northwind Traders\nTransaction TXN-2026-0001\nDate: 2026-01-06\nDescription: Payment for INV-2026-0001\nAmount: 11,700.00 INR\nTransaction TXN-2026-0002\nDate: 2026-01-15\nDescription: Office rent January\nAmount: 25,000.00 INR"
+        }
+      ]
+    },
+    {
+      "question": "What is the gross payroll amount?",
+      "expected_evidence": "480,000.00",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "141e6f9d-1645-4e13-a1b1-4a8510b0d9e6",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "d596c237-4168-417e-8f5f-9e5cc879b33a",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 1,
+          "page_number": 2
+        }
+      ],
+      "matching_rank": 1,
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top_score": 0.6419,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "141e6f9d-1645-4e13-a1b1-4a8510b0d9e6",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.6419,
+          "content": "SYNTHETIC PAYROLL SUMMARY\nJanuary 2026\nEmployees: 12\nGross payroll: 480,000.00 INR\nPayroll date: 2026-01-31"
+        },
+        {
+          "chunk_id": "d596c237-4168-417e-8f5f-9e5cc879b33a",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.6031,
+          "content": "PAYROLL SUMMARY - COMPENSATION\nPayroll month: January 2026\nEmployee count: 12\nGross payroll: 480,000.00 INR\nCurrency: INR\nPayroll category: Monthly compensation"
+        },
+        {
+          "chunk_id": "aca28933-d9cd-431b-8be2-71ca1fb90dce",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5471,
+          "content": "PAYROLL SUMMARY - PROCESSING NOTES\nPayroll reference: PAY-JAN-2026\nProcessing date: 2026-01-31\nPayroll status: Synthetic demonstration record\nThe gross payroll value is recorded before deductions.\nThis sample contains no individual employee records."
+        },
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.337,
+          "content": "SYNTHETIC BANK STATEMENT\nAccount: Northwind Traders\nTransaction TXN-2026-0001\nDate: 2026-01-06\nDescription: Payment for INV-2026-0001\nAmount: 11,700.00 INR\nTransaction TXN-2026-0002\nDate: 2026-01-15\nDescription: Office rent January\nAmount: 25,000.00 INR"
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.307,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        }
+      ]
+    },
+    {
+      "question": "What is the rent payment deadline in the Prime Properties policy?",
+      "expected_evidence": "7 calendar days",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "0468f5bd-0d0f-45de-a0c9-067ba7d22c41",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "3f508a1b-6795-4559-a692-74e6cebc7100",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 2,
+          "page_number": 3
+        }
+      ],
+      "matching_rank": 1,
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top_score": 0.7733,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "3f508a1b-6795-4559-a692-74e6cebc7100",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.7733,
+          "content": "PRIME PROPERTIES - POLICY DETAILS\nPolicy reference: PRIME-RENT-2026\nPolicy review date: 01/01/2026\nLate payment fee: 2 percent\nPayment deadline: 7 calendar days\nCurrency used for rent records: INR\nThis policy contains synthetic demonstration information."
+        },
+        {
+          "chunk_id": "0468f5bd-0d0f-45de-a0c9-067ba7d22c41",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.7131,
+          "content": "PRIME PROPERTIES\nVendor Payment Policy\nRent invoices are payable within 7 calendar days.\nLate rent payments may incur a 2 percent fee."
+        },
+        {
+          "chunk_id": "67c3a461-0b57-491b-a344-9ac09f39476f",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.5522,
+          "content": "PRIME PROPERTIES - RENTAL PROCEDURE\nVendor category: Commercial property\nPayment frequency: Monthly\nAccepted payment method: Bank transfer\nRent payment reference should identify the rental month.\nThe finance team records each monthly settlement."
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4018,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "75b09023-d02f-4003-bff5-572a6f9e7d0e",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.2846,
+          "content": "LOAN AGREEMENT - REPAYMENT DETAILS\nLoan reference: LN-2026-0042\nPrincipal amount: 500,000.00 INR\nAnnual interest rate: 9.5 percent\nRepayment duration: 24 months\nCurrency: INR\nRepayment frequency: Monthly"
+        }
+      ]
+    },
+    {
+      "question": "What is the late rent payment fee?",
+      "expected_evidence": "2 percent",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "0468f5bd-0d0f-45de-a0c9-067ba7d22c41",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "3f508a1b-6795-4559-a692-74e6cebc7100",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 2,
+          "page_number": 3
+        }
+      ],
+      "matching_rank": 1,
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top_score": 0.5939,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "0468f5bd-0d0f-45de-a0c9-067ba7d22c41",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5939,
+          "content": "PRIME PROPERTIES\nVendor Payment Policy\nRent invoices are payable within 7 calendar days.\nLate rent payments may incur a 2 percent fee."
+        },
+        {
+          "chunk_id": "3f508a1b-6795-4559-a692-74e6cebc7100",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.51,
+          "content": "PRIME PROPERTIES - POLICY DETAILS\nPolicy reference: PRIME-RENT-2026\nPolicy review date: 01/01/2026\nLate payment fee: 2 percent\nPayment deadline: 7 calendar days\nCurrency used for rent records: INR\nThis policy contains synthetic demonstration information."
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.3409,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "67c3a461-0b57-491b-a344-9ac09f39476f",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.3095,
+          "content": "PRIME PROPERTIES - RENTAL PROCEDURE\nVendor category: Commercial property\nPayment frequency: Monthly\nAccepted payment method: Bank transfer\nRent payment reference should identify the rental month.\nThe finance team records each monthly settlement."
+        },
+        {
+          "chunk_id": "2df85be2-9c75-4fbc-8bdf-74b6ad6a3c81",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.2708,
+          "content": "ACME SUPPLIES - PAYMENT PROCEDURE\nPayments must reference the applicable invoice number.\nAccepted payment method: Bank transfer.\nPayment confirmation is recorded against the vendor account.\nPartial payments do not qualify for the early settlement discount.\nThe buyer should retain the payment confirmation."
+        }
+      ]
+    },
+    {
+      "question": "How much was paid for the January invoice settlement?",
+      "expected_evidence": "11,700.00",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": null,
+      "hit_at_1": false,
+      "hit_at_5": false,
+      "top_score": 0.5088,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5088,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4869,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4838,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "7adc21ff-2f5a-46ad-8553-f6e37205b3c2",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.4547,
+          "content": "NORTHWIND TRADERS - TRANSACTION NOTES\nStatement period: January 2026\nTransaction channel: Electronic transfer\nReconciliation status: Demonstration dataset\nThe invoice settlement is linked to INV-2026-0001.\nThe rent transaction is linked to Prime Properties.\nNo December 2025 electricity transaction is listed."
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.4524,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        }
+      ]
+    },
+    {
+      "question": "What is the amount of the office rent transaction?",
+      "expected_evidence": "25,000.00",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1
+        }
+      ],
+      "matching_rank": 2,
+      "hit_at_1": false,
+      "hit_at_5": true,
+      "top_score": 0.4344,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "0468f5bd-0d0f-45de-a0c9-067ba7d22c41",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4344,
+          "content": "PRIME PROPERTIES\nVendor Payment Policy\nRent invoices are payable within 7 calendar days.\nLate rent payments may incur a 2 percent fee."
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4114,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.3977,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        },
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.3956,
+          "content": "SYNTHETIC BANK STATEMENT\nAccount: Northwind Traders\nTransaction TXN-2026-0001\nDate: 2026-01-06\nDescription: Payment for INV-2026-0001\nAmount: 11,700.00 INR\nTransaction TXN-2026-0002\nDate: 2026-01-15\nDescription: Office rent January\nAmount: 25,000.00 INR"
+        },
+        {
+          "chunk_id": "67c3a461-0b57-491b-a344-9ac09f39476f",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.3507,
+          "content": "PRIME PROPERTIES - RENTAL PROCEDURE\nVendor category: Commercial property\nPayment frequency: Monthly\nAccepted payment method: Bank transfer\nRent payment reference should identify the rental month.\nThe finance team records each monthly settlement."
+        }
+      ]
+    },
+    {
+      "question": "How much was spent on travel expenses?",
+      "expected_evidence": "8,400.00",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "07ddbd9c-1bbd-4505-8902-ba867080810e",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "d1540b29-4617-49c3-ad33-57f9b18dd08f",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 1,
+          "page_number": 2
+        }
+      ],
+      "matching_rank": 1,
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "top_score": 0.4435,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "07ddbd9c-1bbd-4505-8902-ba867080810e",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4435,
+          "content": "NORTHWIND TRADERS\nQuarterly Expense Report\nTravel expenses: 8,400.00 INR\nOffice supplies: 3,200.00 INR\nSoftware subscriptions: 6,500.00 INR"
+        },
+        {
+          "chunk_id": "2fe86f80-d883-45dc-813e-a4088e6fe8fc",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.4188,
+          "content": "NORTHWIND TRADERS - EXPENSE NOTES\nReport reference: EXP-Q1-2026\nReporting currency: INR\nTravel expenses relate to business trips.\nOffice supplies relate to administrative purchases.\nSoftware subscriptions relate to business applications.\nThis is synthetic quarterly expense data."
+        },
+        {
+          "chunk_id": "d1540b29-4617-49c3-ad33-57f9b18dd08f",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.3643,
+          "content": "NORTHWIND TRADERS - EXPENSE BREAKDOWN\nReporting period: Q1 2026\nExpense category: Travel\nTravel expenses: 8,400.00 INR\nExpense category: Office supplies\nOffice supplies: 3,200.00 INR\nExpense category: Software\nSoftware subscriptions: 6,500.00 INR"
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.2548,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.2188,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        }
+      ]
+    },
+    {
+      "question": "How much was spent on office supplies?",
+      "expected_evidence": "3,200.00",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "07ddbd9c-1bbd-4505-8902-ba867080810e",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "d1540b29-4617-49c3-ad33-57f9b18dd08f",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 1,
+          "page_number": 2
+        }
+      ],
+      "matching_rank": 2,
+      "hit_at_1": false,
+      "hit_at_5": true,
+      "top_score": 0.4299,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.4299,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        },
+        {
+          "chunk_id": "07ddbd9c-1bbd-4505-8902-ba867080810e",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4026,
+          "content": "NORTHWIND TRADERS\nQuarterly Expense Report\nTravel expenses: 8,400.00 INR\nOffice supplies: 3,200.00 INR\nSoftware subscriptions: 6,500.00 INR"
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.3627,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "d1540b29-4617-49c3-ad33-57f9b18dd08f",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.349,
+          "content": "NORTHWIND TRADERS - EXPENSE BREAKDOWN\nReporting period: Q1 2026\nExpense category: Travel\nTravel expenses: 8,400.00 INR\nExpense category: Office supplies\nOffice supplies: 3,200.00 INR\nExpense category: Software\nSoftware subscriptions: 6,500.00 INR"
+        },
+        {
+          "chunk_id": "2fe86f80-d883-45dc-813e-a4088e6fe8fc",
+          "document_id": "a10b7cd0-eb25-492f-88df-bba9e4ac8f3a",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.3398,
+          "content": "NORTHWIND TRADERS - EXPENSE NOTES\nReport reference: EXP-Q1-2026\nReporting currency: INR\nTravel expenses relate to business trips.\nOffice supplies relate to administrative purchases.\nSoftware subscriptions relate to business applications.\nThis is synthetic quarterly expense data."
+        }
+      ]
+    },
+    {
+      "question": "What is the repayment term of the demo loan?",
+      "expected_evidence": "24 months",
+      "expected_evidence_chunks": [
+        {
+          "chunk_id": "a173d76e-c74b-4590-9673-62a329bbd0e4",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 0,
+          "page_number": 1
+        },
+        {
+          "chunk_id": "75b09023-d02f-4003-bff5-572a6f9e7d0e",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 1,
+          "page_number": 2
+        }
+      ],
+      "matching_rank": 2,
+      "hit_at_1": false,
+      "hit_at_5": true,
+      "top_score": 0.5551,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "cb80d11a-765a-4d6b-9bc7-301c538b9420",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5551,
+          "content": "LOAN AGREEMENT - ACCOUNT NOTES\nLoan reference: LN-2026-0042\nAccount category: Demonstration business loan\nAgreement status: Synthetic sample\nThe agreement records principal and interest terms.\nNo prepayment penalty amount is specified in this sample."
+        },
+        {
+          "chunk_id": "75b09023-d02f-4003-bff5-572a6f9e7d0e",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.5423,
+          "content": "LOAN AGREEMENT - REPAYMENT DETAILS\nLoan reference: LN-2026-0042\nPrincipal amount: 500,000.00 INR\nAnnual interest rate: 9.5 percent\nRepayment duration: 24 months\nCurrency: INR\nRepayment frequency: Monthly"
+        },
+        {
+          "chunk_id": "a173d76e-c74b-4590-9673-62a329bbd0e4",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.5356,
+          "content": "SYNTHETIC LOAN AGREEMENT\nLoan reference: LN-2026-0042\nPrincipal: 500,000.00 INR\nAnnual interest rate: 9.5 percent\nRepayment term: 24 months"
+        },
+        {
+          "chunk_id": "2df85be2-9c75-4fbc-8bdf-74b6ad6a3c81",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.3806,
+          "content": "ACME SUPPLIES - PAYMENT PROCEDURE\nPayments must reference the applicable invoice number.\nAccepted payment method: Bank transfer.\nPayment confirmation is recorded against the vendor account.\nPartial payments do not qualify for the early settlement discount.\nThe buyer should retain the payment confirmation."
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.3584,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        }
+      ]
+    }
+  ],
+  "abstention_results": [
+    {
+      "question": "What is the account holder's passport number?",
+      "expected_evidence_chunks": [],
+      "top_score": 0.3377,
+      "threshold": 0.35,
+      "abstained": true,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.3377,
+          "content": "SYNTHETIC BANK STATEMENT\nAccount: Northwind Traders\nTransaction TXN-2026-0001\nDate: 2026-01-06\nDescription: Payment for INV-2026-0001\nAmount: 11,700.00 INR\nTransaction TXN-2026-0002\nDate: 2026-01-15\nDescription: Office rent January\nAmount: 25,000.00 INR"
+        },
+        {
+          "chunk_id": "c07f124f-6a22-4a49-9840-d8d9bc81f34a",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.3313,
+          "content": "NORTHWIND TRADERS - STATEMENT SUMMARY\nStatement month: January 2026\nAccount type: Business current account\nCurrency: INR\nTransaction count on this page: 2\nReference TXN-2026-0001 relates to invoice settlement.\nReference TXN-2026-0002 relates to office rent."
+        },
+        {
+          "chunk_id": "cb80d11a-765a-4d6b-9bc7-301c538b9420",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.3268,
+          "content": "LOAN AGREEMENT - ACCOUNT NOTES\nLoan reference: LN-2026-0042\nAccount category: Demonstration business loan\nAgreement status: Synthetic sample\nThe agreement records principal and interest terms.\nNo prepayment penalty amount is specified in this sample."
+        },
+        {
+          "chunk_id": "75b09023-d02f-4003-bff5-572a6f9e7d0e",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.2848,
+          "content": "LOAN AGREEMENT - REPAYMENT DETAILS\nLoan reference: LN-2026-0042\nPrincipal amount: 500,000.00 INR\nAnnual interest rate: 9.5 percent\nRepayment duration: 24 months\nCurrency: INR\nRepayment frequency: Monthly"
+        },
+        {
+          "chunk_id": "11e929bd-b08d-415a-9ce1-fe1e56111db0",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.2452,
+          "content": "ACME SUPPLIES - BILLING NOTES\nInvoice reference: INV-2026-0001\nCustomer account: Northwind Traders\nBilling department: Professional Services\nPayment method: Bank transfer\nInvoice status at issue: Unpaid\nRemittance reference should include invoice number.\nThis page contains synthetic demonstration information."
+        }
+      ]
+    },
+    {
+      "question": "What was the company's exact electricity bill in December 2025?",
+      "expected_evidence_chunks": [],
+      "top_score": 0.3939,
+      "threshold": 0.35,
+      "abstained": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "e4f60fec-0ae2-4ae8-91ec-4678af8b710a",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.3939,
+          "content": "ACME SUPPLIES - SERVICE DETAILS\nInvoice reference: INV-2026-0001\nService category: Business consulting\nQuantity supplied: 10 units\nUnit price: 1,200.00 INR\nService period: January 2026\nService status: Completed\nBilling frequency: One-time\nAll amounts are stated in Indian Rupees."
+        },
+        {
+          "chunk_id": "9c163e39-a367-4f0e-be4f-0bb9c6393cf7",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.3676,
+          "content": "NORTHWIND OFFICE SOLUTIONS\nTax Invoice\nInvoice No: INV-2026-0002\nInvoice Date: 10/01/2026\nVendor: Northwind Office Solutions\nBuyer: Acme Supplies\nOffice chairs 5 units 25,000.00\nTotal: 25,000.00\nCurrency: INR\nPayment terms: Net 15"
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.3657,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        },
+        {
+          "chunk_id": "7adc21ff-2f5a-46ad-8553-f6e37205b3c2",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.343,
+          "content": "NORTHWIND TRADERS - TRANSACTION NOTES\nStatement period: January 2026\nTransaction channel: Electronic transfer\nReconciliation status: Demonstration dataset\nThe invoice settlement is linked to INV-2026-0001.\nThe rent transaction is linked to Prime Properties.\nNo December 2025 electricity transaction is listed."
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.336,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        }
+      ]
+    },
+    {
+      "question": "Which employee received the largest annual bonus?",
+      "expected_evidence_chunks": [],
+      "top_score": 0.3385,
+      "threshold": 0.35,
+      "abstained": true,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "141e6f9d-1645-4e13-a1b1-4a8510b0d9e6",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.3385,
+          "content": "SYNTHETIC PAYROLL SUMMARY\nJanuary 2026\nEmployees: 12\nGross payroll: 480,000.00 INR\nPayroll date: 2026-01-31"
+        },
+        {
+          "chunk_id": "d596c237-4168-417e-8f5f-9e5cc879b33a",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.2984,
+          "content": "PAYROLL SUMMARY - COMPENSATION\nPayroll month: January 2026\nEmployee count: 12\nGross payroll: 480,000.00 INR\nCurrency: INR\nPayroll category: Monthly compensation"
+        },
+        {
+          "chunk_id": "aca28933-d9cd-431b-8be2-71ca1fb90dce",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.2347,
+          "content": "PAYROLL SUMMARY - PROCESSING NOTES\nPayroll reference: PAY-JAN-2026\nProcessing date: 2026-01-31\nPayroll status: Synthetic demonstration record\nThe gross payroll value is recorded before deductions.\nThis sample contains no individual employee records."
+        },
+        {
+          "chunk_id": "c07f124f-6a22-4a49-9840-d8d9bc81f34a",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.1822,
+          "content": "NORTHWIND TRADERS - STATEMENT SUMMARY\nStatement month: January 2026\nAccount type: Business current account\nCurrency: INR\nTransaction count on this page: 2\nReference TXN-2026-0001 relates to invoice settlement.\nReference TXN-2026-0002 relates to office rent."
+        },
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.1488,
+          "content": "SYNTHETIC BANK STATEMENT\nAccount: Northwind Traders\nTransaction TXN-2026-0001\nDate: 2026-01-06\nDescription: Payment for INV-2026-0001\nAmount: 11,700.00 INR\nTransaction TXN-2026-0002\nDate: 2026-01-15\nDescription: Office rent January\nAmount: 25,000.00 INR"
+        }
+      ]
+    },
+    {
+      "question": "What is the GST registration number of Prime Properties?",
+      "expected_evidence_chunks": [],
+      "top_score": 0.4585,
+      "threshold": 0.35,
+      "abstained": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "67c3a461-0b57-491b-a344-9ac09f39476f",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.4585,
+          "content": "PRIME PROPERTIES - RENTAL PROCEDURE\nVendor category: Commercial property\nPayment frequency: Monthly\nAccepted payment method: Bank transfer\nRent payment reference should identify the rental month.\nThe finance team records each monthly settlement."
+        },
+        {
+          "chunk_id": "3f508a1b-6795-4559-a692-74e6cebc7100",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.3591,
+          "content": "PRIME PROPERTIES - POLICY DETAILS\nPolicy reference: PRIME-RENT-2026\nPolicy review date: 01/01/2026\nLate payment fee: 2 percent\nPayment deadline: 7 calendar days\nCurrency used for rent records: INR\nThis policy contains synthetic demonstration information."
+        },
+        {
+          "chunk_id": "a173d76e-c74b-4590-9673-62a329bbd0e4",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.2765,
+          "content": "SYNTHETIC LOAN AGREEMENT\nLoan reference: LN-2026-0042\nPrincipal: 500,000.00 INR\nAnnual interest rate: 9.5 percent\nRepayment term: 24 months"
+        },
+        {
+          "chunk_id": "cb80d11a-765a-4d6b-9bc7-301c538b9420",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.2727,
+          "content": "LOAN AGREEMENT - ACCOUNT NOTES\nLoan reference: LN-2026-0042\nAccount category: Demonstration business loan\nAgreement status: Synthetic sample\nThe agreement records principal and interest terms.\nNo prepayment penalty amount is specified in this sample."
+        },
+        {
+          "chunk_id": "0468f5bd-0d0f-45de-a0c9-067ba7d22c41",
+          "document_id": "c5967162-aa1d-4502-8ad6-cc7ed748dad3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.2682,
+          "content": "PRIME PROPERTIES\nVendor Payment Policy\nRent invoices are payable within 7 calendar days.\nLate rent payments may incur a 2 percent fee."
+        }
+      ]
+    },
+    {
+      "question": "What was the closing bank balance on 31 January 2026?",
+      "expected_evidence_chunks": [],
+      "top_score": 0.4911,
+      "threshold": 0.35,
+      "abstained": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4911,
+          "content": "SYNTHETIC BANK STATEMENT\nAccount: Northwind Traders\nTransaction TXN-2026-0001\nDate: 2026-01-06\nDescription: Payment for INV-2026-0001\nAmount: 11,700.00 INR\nTransaction TXN-2026-0002\nDate: 2026-01-15\nDescription: Office rent January\nAmount: 25,000.00 INR"
+        },
+        {
+          "chunk_id": "c07f124f-6a22-4a49-9840-d8d9bc81f34a",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.4508,
+          "content": "NORTHWIND TRADERS - STATEMENT SUMMARY\nStatement month: January 2026\nAccount type: Business current account\nCurrency: INR\nTransaction count on this page: 2\nReference TXN-2026-0001 relates to invoice settlement.\nReference TXN-2026-0002 relates to office rent."
+        },
+        {
+          "chunk_id": "7adc21ff-2f5a-46ad-8553-f6e37205b3c2",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.4402,
+          "content": "NORTHWIND TRADERS - TRANSACTION NOTES\nStatement period: January 2026\nTransaction channel: Electronic transfer\nReconciliation status: Demonstration dataset\nThe invoice settlement is linked to INV-2026-0001.\nThe rent transaction is linked to Prime Properties.\nNo December 2025 electricity transaction is listed."
+        },
+        {
+          "chunk_id": "a173d76e-c74b-4590-9673-62a329bbd0e4",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.4186,
+          "content": "SYNTHETIC LOAN AGREEMENT\nLoan reference: LN-2026-0042\nPrincipal: 500,000.00 INR\nAnnual interest rate: 9.5 percent\nRepayment term: 24 months"
+        },
+        {
+          "chunk_id": "75b09023-d02f-4003-bff5-572a6f9e7d0e",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.4129,
+          "content": "LOAN AGREEMENT - REPAYMENT DETAILS\nLoan reference: LN-2026-0042\nPrincipal amount: 500,000.00 INR\nAnnual interest rate: 9.5 percent\nRepayment duration: 24 months\nCurrency: INR\nRepayment frequency: Monthly"
+        }
+      ]
+    },
+    {
+      "question": "Who is the chief financial officer's home address?",
+      "expected_evidence_chunks": [],
+      "top_score": 0.2765,
+      "threshold": 0.35,
+      "abstained": true,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.2765,
+          "content": "SYNTHETIC BANK STATEMENT\nAccount: Northwind Traders\nTransaction TXN-2026-0001\nDate: 2026-01-06\nDescription: Payment for INV-2026-0001\nAmount: 11,700.00 INR\nTransaction TXN-2026-0002\nDate: 2026-01-15\nDescription: Office rent January\nAmount: 25,000.00 INR"
+        },
+        {
+          "chunk_id": "c07f124f-6a22-4a49-9840-d8d9bc81f34a",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.2605,
+          "content": "NORTHWIND TRADERS - STATEMENT SUMMARY\nStatement month: January 2026\nAccount type: Business current account\nCurrency: INR\nTransaction count on this page: 2\nReference TXN-2026-0001 relates to invoice settlement.\nReference TXN-2026-0002 relates to office rent."
+        },
+        {
+          "chunk_id": "7adc21ff-2f5a-46ad-8553-f6e37205b3c2",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.2576,
+          "content": "NORTHWIND TRADERS - TRANSACTION NOTES\nStatement period: January 2026\nTransaction channel: Electronic transfer\nReconciliation status: Demonstration dataset\nThe invoice settlement is linked to INV-2026-0001.\nThe rent transaction is linked to Prime Properties.\nNo December 2025 electricity transaction is listed."
+        },
+        {
+          "chunk_id": "11e929bd-b08d-415a-9ce1-fe1e56111db0",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.2276,
+          "content": "ACME SUPPLIES - BILLING NOTES\nInvoice reference: INV-2026-0001\nCustomer account: Northwind Traders\nBilling department: Professional Services\nPayment method: Bank transfer\nInvoice status at issue: Unpaid\nRemittance reference should include invoice number.\nThis page contains synthetic demonstration information."
+        },
+        {
+          "chunk_id": "af1d9e62-bd9b-4d7c-abfc-021f4754dfd8",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.1886,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nTax Invoice\nInvoice No: INV-2026-0001\nInvoice Date: 05/01/2026\nDue Date: 05/02/2026\nVendor: Acme Supplies\nBuyer: Northwind Traders\nConsulting services 10 units 12,000.00\nTotal: 12,000.00\nCurrency: INR\nPayment terms: Net 30"
+        }
+      ]
+    },
+    {
+      "question": "What is the loan's prepayment penalty amount?",
+      "expected_evidence_chunks": [],
+      "top_score": 0.5521,
+      "threshold": 0.35,
+      "abstained": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "cb80d11a-765a-4d6b-9bc7-301c538b9420",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.5521,
+          "content": "LOAN AGREEMENT - ACCOUNT NOTES\nLoan reference: LN-2026-0042\nAccount category: Demonstration business loan\nAgreement status: Synthetic sample\nThe agreement records principal and interest terms.\nNo prepayment penalty amount is specified in this sample."
+        },
+        {
+          "chunk_id": "75b09023-d02f-4003-bff5-572a6f9e7d0e",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.5145,
+          "content": "LOAN AGREEMENT - REPAYMENT DETAILS\nLoan reference: LN-2026-0042\nPrincipal amount: 500,000.00 INR\nAnnual interest rate: 9.5 percent\nRepayment duration: 24 months\nCurrency: INR\nRepayment frequency: Monthly"
+        },
+        {
+          "chunk_id": "a173d76e-c74b-4590-9673-62a329bbd0e4",
+          "document_id": "cab49f1d-0ca4-45bc-a8d8-12eb7bc99085",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.475,
+          "content": "SYNTHETIC LOAN AGREEMENT\nLoan reference: LN-2026-0042\nPrincipal: 500,000.00 INR\nAnnual interest rate: 9.5 percent\nRepayment term: 24 months"
+        },
+        {
+          "chunk_id": "4e49d440-6623-4d80-8960-500cf5b35d7a",
+          "document_id": "ec1415c9-0941-4bc1-ad15-564492370df3",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.3574,
+          "content": "ACME SUPPLIES PRIVATE LIMITED\nVendor Payment Policy\nApplies to invoice INV-2026-0001.\nA 300.00 early payment discount applies when the buyer\nsettles in full within the agreed early-settlement window.\nThe discounted payment may close the invoice."
+        },
+        {
+          "chunk_id": "cf6ad949-f474-4ebb-a4c1-ff31c0dcd212",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.292,
+          "content": "SYNTHETIC BANK STATEMENT\nAccount: Northwind Traders\nTransaction TXN-2026-0001\nDate: 2026-01-06\nDescription: Payment for INV-2026-0001\nAmount: 11,700.00 INR\nTransaction TXN-2026-0002\nDate: 2026-01-15\nDescription: Office rent January\nAmount: 25,000.00 INR"
+        }
+      ]
+    },
+    {
+      "question": "How many laptops were purchased in February 2026?",
+      "expected_evidence_chunks": [],
+      "top_score": 0.3281,
+      "threshold": 0.35,
+      "abstained": true,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "141e6f9d-1645-4e13-a1b1-4a8510b0d9e6",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 0,
+          "page_number": 1,
+          "score": 0.3281,
+          "content": "SYNTHETIC PAYROLL SUMMARY\nJanuary 2026\nEmployees: 12\nGross payroll: 480,000.00 INR\nPayroll date: 2026-01-31"
+        },
+        {
+          "chunk_id": "e82ed3c9-4d94-43cc-976f-88673f426cf5",
+          "document_id": "a63d8b82-4d86-4943-ac64-a9dc9bc7a8d8",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.2867,
+          "content": "NORTHWIND OFFICE SOLUTIONS - ORDER DETAILS\nInvoice reference: INV-2026-0002\nProduct: Ergonomic office chair\nQuantity: 5 units\nUnit price: 5,000.00 INR\nDelivery status: Completed\nOrder category: Office furniture\nBilling month: January 2026"
+        },
+        {
+          "chunk_id": "e4f60fec-0ae2-4ae8-91ec-4678af8b710a",
+          "document_id": "395bf9ef-c019-4006-b615-bae0ccbda7f7",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.284,
+          "content": "ACME SUPPLIES - SERVICE DETAILS\nInvoice reference: INV-2026-0001\nService category: Business consulting\nQuantity supplied: 10 units\nUnit price: 1,200.00 INR\nService period: January 2026\nService status: Completed\nBilling frequency: One-time\nAll amounts are stated in Indian Rupees."
+        },
+        {
+          "chunk_id": "7adc21ff-2f5a-46ad-8553-f6e37205b3c2",
+          "document_id": "3162e105-d0a3-4a0c-b0df-2e15045b4a9d",
+          "chunk_index": 2,
+          "page_number": 3,
+          "score": 0.2617,
+          "content": "NORTHWIND TRADERS - TRANSACTION NOTES\nStatement period: January 2026\nTransaction channel: Electronic transfer\nReconciliation status: Demonstration dataset\nThe invoice settlement is linked to INV-2026-0001.\nThe rent transaction is linked to Prime Properties.\nNo December 2025 electricity transaction is listed."
+        },
+        {
+          "chunk_id": "d596c237-4168-417e-8f5f-9e5cc879b33a",
+          "document_id": "bd511af5-5b0b-471e-a295-25f34924d392",
+          "chunk_index": 1,
+          "page_number": 2,
+          "score": 0.2558,
+          "content": "PAYROLL SUMMARY - COMPENSATION\nPayroll month: January 2026\nEmployee count: 12\nGross payroll: 480,000.00 INR\nCurrency: INR\nPayroll category: Monthly compensation"
+        }
+      ]
     }
   ]
 }
